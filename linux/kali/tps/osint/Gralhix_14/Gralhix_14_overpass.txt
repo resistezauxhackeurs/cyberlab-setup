@@ -1,0 +1,8 @@
+{{geocodeArea:Chișinău}}->.searchArea;
+(way["building"] (if: (is_number(t["building:levels"]) && t["building:levels"] == 12))(area.searchArea);)
+->.build;
+(way["highway"] (if: (is_number(t["lanes"]) && t["lanes"] ==6)) (around.build:50);)
+->.parking;
+
+node(around.parking:30) ["amenity"="parking"];
+out skel;

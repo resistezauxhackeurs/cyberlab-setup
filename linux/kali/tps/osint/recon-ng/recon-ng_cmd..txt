@@ -1,0 +1,6 @@
+recon-ng
+	recon-ng w <nom_projet>
+	db insert domains
+	marketplace search domains
+	marketplace install MODULE
+	marketplace info MODULE

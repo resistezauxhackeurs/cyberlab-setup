@@ -1,0 +1,7 @@
+gcc rop_2_args.c -o rop_2_args -fno-stack-protector -no-pie -fno-pie
+
+https://stackoverflow.com/questions/61985401/simple-rop-chain-with-2-arguments-to-the-function
+
+
+└─$ ROPgadget --binary rop_2_args | grep "pop rsi ; pop r15 ; ret"                                                                                                                     127 ⨯
+0x0000000000401219 : pop rsi ; pop r15 ; ret

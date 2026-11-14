@@ -1,0 +1,114 @@
+https://github.com/chr3st5an/Google-Dorking
+
+# Google Hacking made easy
+https://pentest-tools.com/information-gathering/google-hacking#
+
+# Search for documents on popular clouds
+site:drive.google.com <searchterm>
+site:dl.dropbox.com <searchterm>
+site:s3.amazonaws.com <searchterm>
+site:onedrive.live.com <searchterm>
+site:cryptome.org <searchterm>
+
+# Admins credentials
+ intext:company_keyword & ext:txt | ext:sql | ext:cnf | ext:config | ext:log & intext:"admin" | intext:"root" | intext:"administrator" & intext:"password" | intext:"root" | intext:"admin" | intext:"administrator"
+
+# Look for domains indexed by others website
+site:bgp.he.net inurl:ndd
+site:dnslookup.fr inurl:ndd
+
+# Get information on the internal organization
+sites:cadres.apec.fr direction <SOCIETE>
+
+# Financial reports
+"périmètre de consolisation"|"rapport de référence"|"rapport annuel" filetype:pdf
+
+# When you use the Google Dork:  site:*.example.com, NEVER forget to check
+site:*.*.example.com
+site:*.*.*.example.com 
+
+# Google Funny dorks
+site:http://trello.com  site:*/boards
+site:http://trello.com  password + admin OR username
+
+# Recon to find sensivite data
+site:http://ideone.com  | site:http://codebeautify.org  | site:http://codeshare.io  | site:http://codepen.io  | site:http://repl.it  | site:http://justpaste.it  | site:http://pastebin.com  | site:http://jsfiddle.net  | site:http://trello.com  "$TARGET"
+
+# Piwik Anonymous Access
+inurl:token_auth inurl:anonymous
+
+Rechercher les fichiers avec une extension log ou pptx sur gouv.fr sauf sur le site principal
+(ext:log | ext:pptx ) AND site:gouv.fr -www
+
+site:
+	Rechercher sur un site spécifique / voir les pages indexées pour un site
+	Exemple pour le domaine it-connect.fr : site:it-connect.fr
+	Rechercher les pages en lien avec Windows Server sur le site it-connect.fr : site:it-connect.fr Windows Server
+filetype:
+	Rechercher une extension de fichier spécifique
+	Exemple pour rechercher des fichiers PDF associé au mot clé "CV" : filetype:pdf CV
+intitle:
+	Rechercher des mots clés dans le titre de la page
+	Exemple pour rechercher des pages d'authentification GLPI : intitle:"GLPI - Authentification"
+allintitle
+	Similaire à intitle: sauf que l'on veut tous les mots clés dans l'URL
+inurl:
+	Rechercher des mots clés dans l'URL de la page
+	Exemple pour rechercher des caméras ou des enregistreurs vidéos (DVR) : inurl:/login.rsp
+after:
+	Afficher uniquement les résultats référencés après une date spécifique
+	Exemple pour prendre le 1er Mai 2021 comme référence : after:2021-05-01
+	
+Recherches vpn
+	intitle:"index of" /etc/openvpn/			
+		Search for files that contain OpenVPN configuration data.
+	inurl:"/vpn/tmindex.html" vpn				
+		Search for URLs that lead to VPN login pages for WatchGuard Technologies products.
+	intitle:"SSL VPN Service" + intext:"Your system administrator provided the following information to help understand and remedy the security conditions:"		
+		Search for pages that contain text related to SSL VPNs and security information provided by a system administrator.
+	intitle:"index of" "vpn-config.*"			
+		Search for files that contain the string "vpn-config" in their name.
+	"-----BEGIN OpenVPN Static key V1-----" ext:key	
+		Search for files that contain OpenVPN static keys.
+	Index of / .ovpn	
+		Search for files that have the file extension ".ovpn".
+	inurl:/sslvpn_logon.shtml intitle:"User Authentication" "WatchGuard Technologies"	
+		Search for URLs that lead to SSL VPN login pages for WatchGuard Technologies products and contain the text "User Authentication".
+	inurl:/sslvpn/Login/Login	
+		Search for URLs that lead to SSL VPN login pages that contain the text "Login".
+	site:vpn../ intitle:"login"	
+		Search for websites that have the word "login" in their title and are in the domain "vpn.".
+	intext:Please Login SSL VPN inurl:remote/login intext:FortiClient
+	
+	
+Recherches ftp
+site:.in | .com | .net intitle:"index of" ftp	
+	Search for websites in the domains .in, .com, and .net that have the text "index of" and "ftp" in their title.
+intitle:"index of" "*/ftp.txt"	
+	Search for websites that have the text "index of" and "ftp.txt" in their title.
+intext:"index of" "ftp"	
+	Search for websites that have the text "index of" and "ftp" in their content.
+inurl:WS_FTP.log	
+	Search for websites that have a file named WS_FTP.log.
+intitle:index.of /cftp /robots.txt	
+	Search for websites that have the text "index.of", "cftp", and "robots.txt" in their title.
+intitle: "Index of ftp passwords"	
+	Search for websites that have the text "Index of ftp passwords" in their title.
+inurl: /ftp intitle:"office"	
+	Search for websites that have the text "/ftp" and "office" in their URL and title.
+inurl:/web-ftp.cgi	
+	Search for websites that have a file named web-ftp.cgi.
+site:sftp..*/ intext:"login" intitle:"server login"	
+	Search for websites in the domains sftp.* that have the text "login" and "server login" in their title and content.
+intitle:"Index of" ws_ftp.ini	
+	Search for websites that have the text "Index of" and "ws_ftp.ini" in their title.
+inurl:ftp -inurl:(http|https) intext:"@gmail.com" intext:subject fwd|confidential|important|CARD|cvv	
+	Search for websites that have the text "ftp", but not "http" or "https", and that also have the text "@gmail.com" in the subject line of an email message, and the text "fwd", "confidential", "important", "CARD", or "cvv" in the email message.
+allintitle:"CrushFTP WebInterface"	
+	Search for websites that have the text "CrushFTP WebInterface" in their title.
+"ws_ftp.log" ext:login	
+	Search for websites that have a file named ws_ftp.log and that also have the file extension ".login".
+title:"Monsta ftp" intext:"Lock session to IP"	
+	Search for websites that have the text "Monsta ftp" in their title and the text "Lock session to IP" in their content.
+"index of" /ftp/logs 
+	Search for websites that have a directory named

@@ -1,0 +1,12 @@
+Metadata-Version: 2.1
+Name: cloud_enum
+Version: 0.0.0
+Summary: Multi-cloud OSINT tool. Enumerate public resources in AWS, Azure, and Google Cloud.
+Home-page: https://github.com/initstring/cloud_enum
+Author: initstring
+License: MIT
+Requires-Python: >=3.0.0
+License-File: LICENSE
+Requires-Dist: dnspython
+Requires-Dist: requests
+Requires-Dist: requests_futures

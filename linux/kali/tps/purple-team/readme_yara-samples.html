@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<!-- Chemin : tps/purple-team/samples/readme_yara-samples.html -->
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>README - Règles YARA & validation (fil rouge Purple Team)</title>
+<meta name="description" content="Jeu de règles YARA ciblées sur les samples du TP Purple Team (Advanced IP Scanner, mimikatz, PsExec) et script de validation de couverture. Comment déployer, tester et valider.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="README - Règles YARA & validation du fil rouge Purple Team">
+<meta property="og:description" content="3 règles YARA prêtes à valider sur les samples + harnais validate-yara.sh (détection prouvée, contrôle négatif). Déploiement et usage.">
+<meta property="og:site_name" content="Résistez aux hackeurs">
+<meta name="twitter:card" content="summary_large_image">
+<!-- Icône : bouclier purple team -->
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230d1117'/%3E%3Cpath d='M16 4l9 3.5v7.8c0 5.6-3.7 10.4-9 11.9-5.3-1.5-9-6.3-9-11.9V7.5z' fill='none' stroke='%23a371f7' stroke-width='2'/%3E%3Cpath d='M16 7v18' stroke='%23f85149' stroke-width='1.5'/%3E%3Cpath d='M16 7l6 2.3v5.2c0 3.7-2.5 6.9-6 8' fill='%2358a6ff' fill-opacity='0.25'/%3E%3C/svg%3E">
+<style>
+:root{
+  --bg-dark:#0d1117;--bg-card:#161b22;--bg-code:#1c2128;--text-primary:#e6edf3;--text-secondary:#8b949e;
+  --accent-green:#3fb950;--accent-blue:#58a6ff;--accent-purple:#a371f7;--accent-orange:#d29922;
+  --accent-cyan:#39c5cf;--accent-red:#f85149;--border:#30363d;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg-dark);color:var(--text-primary);line-height:1.6;}
+.container{max-width:960px;margin:0 auto;padding:2rem;}
+header{text-align:center;padding:2.5rem 0 1.5rem;border-bottom:1px solid var(--border);margin-bottom:2rem;}
+header h1{font-size:2rem;background:linear-gradient(135deg,var(--accent-green),var(--accent-cyan),var(--accent-purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:.5rem;}
+header p{color:var(--text-secondary);max-width:640px;margin:.5rem auto 0;}
+.breadcrumb{margin-bottom:1.5rem;font-size:.9rem;}
+.breadcrumb a{color:var(--accent-blue);text-decoration:none;}
+.breadcrumb a:hover{text-decoration:underline;}
+.breadcrumb span{color:var(--text-secondary);margin:0 .5rem;}
+h2{color:var(--accent-green);font-size:1.5rem;margin:2.5rem 0 1rem;padding-bottom:.4rem;border-bottom:2px solid var(--accent-green);}
+h3{color:var(--accent-purple);font-size:1.2rem;margin:1.5rem 0 .75rem;}
+p{margin-bottom:.9rem;}
+code{background:var(--bg-code);padding:.15rem .45rem;border-radius:4px;font-family:'Fira Code','Consolas',monospace;font-size:.88em;color:var(--accent-green);}
+pre{background:var(--bg-code);padding:1rem 1.3rem;border-radius:8px;overflow-x:auto;margin:.8rem 0;border:1px solid var(--border);}
+pre code{background:none;padding:0;color:var(--text-primary);font-size:.85rem;line-height:1.5;}
+.lang-tag{display:block;font-size:.7rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.3rem;}
+ul,ol{margin-left:1.4rem;margin-bottom:1rem;}li{margin-bottom:.4rem;}
+a{color:var(--accent-blue);}
+table{width:100%;border-collapse:collapse;margin:1rem 0;background:var(--bg-card);border-radius:8px;overflow:hidden;font-size:.9rem;}
+th,td{padding:.6rem .9rem;text-align:left;border-bottom:1px solid var(--border);vertical-align:top;}
+th{background:var(--bg-code);color:var(--accent-cyan);font-weight:600;}
+tr:hover{background:rgba(88,166,255,.05);}
+.card{background:var(--bg-card);border-radius:12px;padding:1.1rem 1.4rem;margin:1rem 0;border:1px solid var(--border);}
+.card.detect{border-left:4px solid var(--accent-green);}
+.card.warning{border-left:4px solid var(--accent-orange);}
+.card-label{font-size:.75rem;text-transform:uppercase;letter-spacing:.1em;margin-bottom:.5rem;font-weight:700;}
+.card.detect .card-label{color:var(--accent-green);}
+.card.warning .card-label{color:var(--accent-orange);}
+.tree{color:var(--text-secondary);}
+.tree b{color:var(--accent-cyan);}
+footer{text-align:center;padding:2rem;color:var(--text-secondary);border-top:1px solid var(--border);margin-top:3rem;}
+/* Link preview au survol */
+.lp{position:relative;}
+.lp-card{position:absolute;bottom:125%;left:0;width:300px;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:.9rem 1rem;box-shadow:0 8px 24px rgba(0,0,0,.5);opacity:0;visibility:hidden;transform:translateY(6px);transition:all .18s ease;z-index:50;font-size:.82rem;pointer-events:none;}
+.lp-card .lp-domain{color:var(--accent-cyan);font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.25rem;}
+.lp-card .lp-title{color:var(--text-primary);font-weight:600;margin-bottom:.25rem;line-height:1.3;}
+.lp-card .lp-desc{color:var(--text-secondary);line-height:1.4;}
+.lp:hover .lp-card{opacity:1;visibility:visible;transform:translateY(0);}
+@media (max-width:768px){.lp-card{display:none;}}
+</style>
+</head>
+<body>
+<div class="container">
+  <nav class="breadcrumb">
+    <a href="../../index.html">Accueil</a><span>/</span>
+    <a href="../index.html">Active Directory</a><span>/</span>
+    <a href="index.html">Purple Team</a><span>/</span>
+    <span style="color:var(--text-primary);">Règles YARA (samples)</span>
+  </nav>
+
+  <header>
+    <h1>Règles YARA &amp; validation</h1>
+    <p>Jeu de règles YARA ciblées sur les binaires du fil rouge, et le harnais qui prouve qu'elles détectent — sans faux positif. À valider avant chaque session.</p>
+  </header>
+
+  <h2>Ce que contient le dossier</h2>
+<pre><span class="lang-tag">arbo — tps/purple-team/samples/</span><code class="tree">samples/
+├── <b>Advanced_IP_Scanner_2.5.4594.1.exe</b>   # sample (fourni)
+├── <b>mimikatz-master.zip</b>                  # sample (fourni, a extraire)
+├── <b>PsExec.exe</b> / <b>PsExec64.exe</b>            # samples (fournis)
+├── rules/
+│   ├── advanced_ip_scanner.yar            # 1 regle
+│   ├── mimikatz.yar                       # 2 regles (_Binary + _Source)
+│   └── psexec.yar                         # 1 regle
+├── validate-yara.sh                       # harnais de validation
+└── readme_yara-samples.html               # ce fichier</code></pre>
+
+  <table>
+    <thead><tr><th>Règle</th><th>Fichier</th><th>Matche</th><th>ATT&amp;CK</th></tr></thead>
+    <tbody>
+      <tr><td><code>APT_Tool_AdvancedIPScanner</code></td><td>advanced_ip_scanner.yar</td><td>Advanced IP Scanner (PE)</td><td>S0552 / T1046</td></tr>
+      <tr><td><code>HackTool_Mimikatz_Binary</code></td><td>mimikatz.yar</td><td>mimikatz.exe compilé</td><td>T1003.001</td></tr>
+      <tr><td><code>HackTool_Mimikatz_Source</code></td><td>mimikatz.yar</td><td>sources C de l'archive</td><td>T1003.001</td></tr>
+      <tr><td><code>SysinternalsTool_PsExec</code></td><td>psexec.yar</td><td>PsExec.exe / PsExec64.exe</td><td>S0029 / T1021.002</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Prérequis</h2>
+<pre><span class="lang-tag">bash</span><code>sudo apt install -y yara      # Kali/Debian
+yara --version                # 4.x attendu</code></pre>
+
+  <h2>Déploiement &amp; utilisation</h2>
+  <div class="card warning">
+    <div class="card-label">⚠️ Dans la VM de lab uniquement</div>
+    <p style="margin-bottom:0">Ce sont de vrais outils offensifs. On les manipule dans la VM de formation, jamais sur un poste de prod. Le Defender du lab mettra <code>mimikatz-master.zip</code> en quarantaine à l'extraction : désactive la protection temps réel ou mets <code>samples/</code> en exclusion avant de dézipper.</p>
+  </div>
+
+<pre><span class="lang-tag">bash</span><code>cd tps/purple-team/samples
+
+# 1. Extraire mimikatz (sa source sert au test de la regle _Source)
+unzip -q mimikatz-master.zip
+
+# 2. Fabriquer le temoin negatif (un binaire quelconque, non malveillant)
+cp /bin/ls _benign_control.exe
+
+# 3. Lancer la validation complete
+bash validate-yara.sh</code></pre>
+
+  <div class="card detect">
+    <div class="card-label">🟢 Sortie attendue</div>
+<pre><span class="lang-tag">sortie</span><code>=== Detection attendue (le sample DOIT matcher) ===
+OK   advanced_ip_scanner.yar  vs  Advanced_IP_Scanner_2.5.4594.1.exe  (attendu: yes)
+OK   psexec.yar  vs  PsExec.exe  (attendu: yes)
+OK   psexec.yar  vs  PsExec64.exe  (attendu: yes)
+OK   mimikatz.yar  vs  mimikatz.c  (attendu: yes)
+
+=== Controle negatif (le temoin NE DOIT PAS matcher) ===
+OK   advanced_ip_scanner.yar  vs  _benign_control.exe  (attendu: no)
+OK   mimikatz.yar  vs  _benign_control.exe  (attendu: no)
+OK   psexec.yar  vs  _benign_control.exe  (attendu: no)
+
+Resultat : 4 OK / 0 FAIL
+Couverture validee.</code></pre>
+    <p style="margin-bottom:0">Tout en <code style="color:var(--accent-green)">OK</code> et <code>0 FAIL</code> = tu peux affirmer aux étudiants « ces règles détectent, je l'ai vérifié ».</p>
+  </div>
+
+  <h2>Scanner à la main</h2>
+<pre><span class="lang-tag">bash</span><code># Un fichier, une regle, avec les chaines trouvees (-s)
+yara -s rules/mimikatz.yar mimikatz-master/
+
+# Tout le dossier samples/ avec toutes les regles, en recursif
+yara -r rules/*.yar .</code></pre>
+
+  <h2>Si un sample passe en FAIL</h2>
+  <p>Ça arrive si ton binaire est une version plus récente qui a renommé une chaîne. La règle n'est pas « cassée », il lui manque le bon motif. On le récupère depuis le binaire :</p>
+<pre><span class="lang-tag">bash</span><code># Extraire les chaines (ascii ET utf-16 Windows), filtrer le bruit (&gt;= 8 car.)
+strings -n 8    &lt;sample&gt; | sort -u &gt; a.txt
+strings -n 8 -e l &lt;sample&gt; | sort -u &gt; w.txt
+
+# Reperer une chaine signante stable (nom produit, editeur, service, PDB)
+grep -iE "famatech|psexesvc|gentilkiwi|sekurlsa" a.txt w.txt
+
+# L'ajouter dans la regle correspondante, revalider :
+yara -s rules/&lt;regle&gt;.yar &lt;sample&gt;</code></pre>
+  <p>Règle d'or : un motif discriminant est <strong>spécifique à l'outil</strong> et <strong>stable</strong> (pas un numéro de version). Nom de produit, éditeur, nom de service déposé, bannière, chemin de PDB.</p>
+
+  <h2>Références</h2>
+  <ul style="font-size:.92rem">
+    <li class="lp"><a href="https://github.com/VirusTotal/yara">YARA (VirusTotal)</a> — moteur et documentation
+      <span class="lp-card"><span class="lp-domain">github.com/VirusTotal</span><span class="lp-title">YARA</span><span class="lp-desc">Le moteur de règles de détection sur fichiers et mémoire, et sa doc officielle.</span></span>
+    </li>
+    <li class="lp"><a href="https://github.com/Neo23x0/signature-base">signature-base (Florian Roth)</a> — règles YARA de référence (mimikatz, hacktools)
+      <span class="lp-card"><span class="lp-domain">github.com/Neo23x0</span><span class="lp-title">signature-base</span><span class="lp-desc">Dépôt YARA de référence pour la détection d'outils offensifs et de malware.</span></span>
+    </li>
+    <li class="lp"><a href="https://attack.mitre.org/software/S0552/">ATT&amp;CK S0552</a> — Advanced IP Scanner
+      <span class="lp-card"><span class="lp-domain">attack.mitre.org</span><span class="lp-title">Advanced IP Scanner (S0552)</span><span class="lp-desc">Outil légitime détourné par les groupes ransomware.</span></span>
+    </li>
+    <li><a href="index.html">← Retour au fil rouge Purple Team</a> (atelier YARA complet)</li>
+  </ul>
+
+  <footer>
+    <p><strong>Règles YARA &amp; validation — fil rouge Purple Team</strong></p>
+    <p style="margin-top:.5rem">Formation détection &amp; réponse SOC · <a href="https://www.resistez-aux-hackeurs.com">Résistez aux hackeurs</a></p>
+  </footer>
+</div>
+</body>
+</html>

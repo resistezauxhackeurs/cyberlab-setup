@@ -1,0 +1,40 @@
+{
+  "cible": "canaltest",
+  "url_source": "https://t.me/s/canaltest",
+  "collecte_le": "2026-09-29T13:41:32+00:00",
+  "titre": "Test Canal OSINT",
+  "username": "canaltest",
+  "verifie": false,
+  "abonnes": 12300,
+  "abonnes_txt": "12.3K",
+  "description": "Canal de démonstration. On relaie @sourceA et parfois https://t.me/sourceB",
+  "compteurs": {
+    "subscribers": "12.3K",
+    "photos": "842",
+    "videos": "57",
+    "links": "1 204"
+  },
+  "posts_analyses": 3,
+  "plus_ancien_post_visible": "2024-03-10T08:15:00+00:00",
+  "plus_recent_post_visible": "2024-03-12T10:30:00+00:00",
+  "canaux_lies": [
+    {
+      "canal": "sourceA",
+      "occurrences": 2
+    },
+    {
+      "canal": "sourceC",
+      "occurrences": 1
+    },
+    {
+      "canal": "sourceB",
+      "occurrences": 1
+    }
+  ],
+  "reposts_depuis": [
+    {
+      "canal": "sourceA",
+      "occurrences": 2
+    }
+  ]
+}

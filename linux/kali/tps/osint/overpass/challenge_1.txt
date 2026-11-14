@@ -1,0 +1,154 @@
+
+
+Recherche centrales nucléaires
+	[out:json][timeout:800];
+
+
+	(
+	  // Source nucléaire d'énergie dans la zone de recherche
+	  nwr["generator:source"="nuclear"]({{bbox}});
+	)->.nuke;
+
+	(.nuke;);
+
+out geom;
+
+
+Recherche aéroports
+	(
+	  // Aérodrome et aéroports à moins de 20km des centrales
+	  nwr(around.nuke:20000)["aeroway"="aerodrome"];
+	)->.airport;
+
+
+Recherche aéroports à moins de 20 km d'une centrale
+	[out:json][timeout:800];
+	(
+	  // Source nucléaire d'énergie dans la zone de recherche
+	  nwr["generator:source"="nuclear"]({{bbox}});
+	)->.nuke;
+	(
+	  // Aérodrome et aéroports à moins de 20km des centrales
+	  nwr(around.nuke:20000)["aeroway"="aerodrome"];
+	)->.airport;
+
+
+	(.airport;);
+	out geom;
+	
+Recherche aéroports internationaux à moins de 20 km d'une centrale
+	[out:json][timeout:800];
+	(
+	  // Source nucléaire d'énergie dans la zone de recherche
+	  nwr["generator:source"="nuclear"]({{bbox}});
+	)->.nuke;
+	(
+	  // Aérodrome et aéroports à moins de 20km des centrales
+	  nwr(around.nuke:20000)["aeroway"="aerodrome"]["aerodrome"="international"];
+	)->.airport;
+
+
+	(.airport;);
+	out geom;
+	
+Recherche points d'eaux à moins de 1500m des aéroports précédemment sélectionnés
+	(
+	  // Points d'eau à moins de 1500m des aéroports précédemment identifiés
+	  nwr(around.airport:1500)["natural"="water"];
+	 )->.waterspots;
+	 
+Recherche routes secondaires à moins de 100m des points d'eau
+	(
+	  // routes secondaires à moins de 100m des points d'eau identifiés
+	  nwr(around.waterspots:100)["highway"="trunk"];
+	)->.road; 
+
+
+Recherche points d'eaux et routes
+	(
+	  // mise en relation des points d'eau et des routes identifiées
+	  // Points d'eau correspondants
+	  node.waterspots(around.road:100);
+	  way.waterspots(around.road:100);
+	  relation.waterspots(around.road:100);
+	)->.matching_water;
+
+
+Recherche aéroports internationaux à moins de 20 km d'une centrale avec points d'eaux à moins de 1500m et routes moins de 100m
+	[out:json][timeout:800];
+	(
+	  // Source nucléaire d'énergie dans la zone de recherche
+	  nwr["generator:source"="nuclear"]({{bbox}});
+	)->.nuke;
+	(
+	  // Aérodrome et aéroports à moins de 20km des centrales
+	  nwr(around.nuke:20000)["aeroway"="aerodrome"]["aerodrome"="international"];
+	)->.airport;
+	(
+	  // Aérodrome et aéroports à moins de 20km des centrales
+	  nwr(around.airport:1500)["natural"="water"];
+	)->.waterspots;
+	(
+	  // Aérodrome et aéroports à moins de 20km des centrales
+	  nwr(around.waterspots:100)["highway"="trunk"];
+	)->.road;
+
+	(
+	  // mise en relation des points d'eau et des routes identifiées et des points d'eau correspondants
+	  node.waterspots(around.road:100);
+	  way.waterspots(around.road:100);
+	  relation.waterspots(around.road:100);
+	)->.matching_water;
+
+	(.matching_water;);
+	out geom;
+
+Construction requête finale
+	(
+	  // Recherche dans l'ensemble des aéroports identifiés
+	  // Ceux proches de moins de 1500m des points d'eau trouvés
+	  node.airport(around.matching_water:1500);
+	  way.airport(around.matching_water:1500);
+	  relation.airport(around.matching_water:1500);
+	)->.matching_airports;
+	
+Requête finale
+	[out:json][timeout:800];
+	// gather results
+	(
+	  // Sources nucléaire d'énergie
+	  nwr["generator:source"="nuclear"]({{bbox}});
+	)->.nuke;
+
+	(
+	  // Aérodrome et aéroports à moins de 20km des centrales
+	  nwr(around.nuke:20000)["aeroway"="aerodrome"]["aerodrome"="international"];
+	)->.airport;
+
+	(
+	  // Ensemble des points d'eau (étangs, bassin...) proche des aéroports
+	  nwr(around.airport:1500)["natural"="water"];
+	 )->.waterspots;
+
+	(
+	  // Récupération des routes à moins de 100 mètres de ces points d'eau
+	  nwr(around.waterspots:100)["highway"="trunk"];
+	)->.road;
+
+	(
+	  // Filtre sur les points d'eau par rapport aux routes proches collectées
+	  node.waterspots(around.road:100);
+	  way.waterspots(around.road:100);
+	  relation.waterspots(around.road:100);
+	)->.matching_water;
+
+	(
+	  // Recoupement des aéroports avec les points d'eau correspondant aux critères
+	  node.airport(around.matching_water:1500);
+	  way.airport(around.matching_water:1500);
+	  relation.airport(around.matching_water:1500);
+	)->.matching_airports;
+
+	(.matching_airports;);
+
+	out geom;  

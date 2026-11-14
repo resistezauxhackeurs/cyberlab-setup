@@ -1,0 +1,93 @@
+{
+  "cible": "canaltest",
+  "url_source": "https://t.me/s/canaltest",
+  "collecte_le": "2024-03-12T12:00:00+00:00",
+  "titre": "Test Canal OSINT",
+  "username": "canaltest",
+  "verifie": false,
+  "abonnes": 12300,
+  "abonnes_txt": "12.3K",
+  "description": "Canal de démonstration. On relaie @sourceA et parfois https://t.me/sourceB",
+  "compteurs": {
+    "subscribers": "12.3K",
+    "photos": "842",
+    "videos": "57",
+    "links": "1 204"
+  },
+  "posts_analyses": 3,
+  "plus_ancien_post_visible": "2024-03-10T08:15:00+00:00",
+  "plus_recent_post_visible": "2024-03-12T10:30:00+00:00",
+  "cadence_posts_par_jour": 1.43,
+  "script_dominant": "latin (~100%)",
+  "vues_mediane": 2100,
+  "ratio_vues_abonnes": 0.171,
+  "heatmap_horaire": {
+    "par_heure_utc": {
+      "0": 0,
+      "1": 0,
+      "2": 0,
+      "3": 0,
+      "4": 0,
+      "5": 0,
+      "6": 0,
+      "7": 0,
+      "8": 1,
+      "9": 1,
+      "10": 1,
+      "11": 0,
+      "12": 0,
+      "13": 0,
+      "14": 0,
+      "15": 0,
+      "16": 0,
+      "17": 0,
+      "18": 0,
+      "19": 0,
+      "20": 0,
+      "21": 0,
+      "22": 0,
+      "23": 0
+    },
+    "fenetre_active_utc": "08h-11h",
+    "posts_dans_la_fenetre": 3
+  },
+  "canaux_lies": [
+    {
+      "canal": "sourceA",
+      "occurrences": 3
+    },
+    {
+      "canal": "sourceC",
+      "occurrences": 1
+    },
+    {
+      "canal": "sourceB",
+      "occurrences": 1
+    }
+  ],
+  "reposts_depuis": [
+    {
+      "canal": "sourceA",
+      "occurrences": 2
+    }
+  ],
+  "domaines_externes": [
+    {
+      "domaine": "leak-example.top",
+      "occurrences": 1
+    }
+  ],
+  "tld_externes": [
+    {
+      "tld": "top",
+      "occurrences": 1
+    }
+  ],
+  "bots_cites": [
+    {
+      "bot": "collectbot",
+      "occurrences": 1
+    }
+  ],
+  "invitations_privees": 1
+}

@@ -1,0 +1,247 @@
+<!-- README.html -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>TP1 — Déploiement · Résistez aux hackeurs</title>
+<meta name="description" content="Déploiement du TP1 OSINT Telegram : prérequis, arborescence, lancement du profileur, options, dépannage et note OPSEC.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="TP1 — Profilage de canal Telegram · déploiement">
+<meta property="og:description" content="Prérequis, arborescence, lancement du profileur passif, options et dépannage.">
+<meta property="og:site_name" content="Résistez aux hackeurs — Formation OSINT">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23161a1d'/%3E%3Cline%20x1='16'%20y1='16'%20x2='7'%20y2='8'%20stroke='%236e9e8e'%20stroke-width='1.6'/%3E%3Cline%20x1='16'%20y1='16'%20x2='25'%20y2='9'%20stroke='%236e9e8e'%20stroke-width='1.6'/%3E%3Cline%20x1='16'%20y1='16'%20x2='9'%20y2='25'%20stroke='%236e9e8e'%20stroke-width='1.6'/%3E%3Cline%20x1='16'%20y1='16'%20x2='24'%20y2='24'%20stroke='%236e9e8e'%20stroke-width='1.6'/%3E%3Ccircle%20cx='7'%20cy='8'%20r='3'%20fill='%23c17d4a'/%3E%3Ccircle%20cx='25'%20cy='9'%20r='2.4'%20fill='%23c17d4a'/%3E%3Ccircle%20cx='9'%20cy='25'%20r='2.4'%20fill='%23c17d4a'/%3E%3Ccircle%20cx='24'%20cy='24'%20r='2.4'%20fill='%23c17d4a'/%3E%3Ccircle%20cx='16'%20cy='16'%20r='4.2'%20fill='%23e6e1d8'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#161a1d; --surface:#1e2429; --surface-2:#232b31;
+    --ink:#e6e1d8; --ink-soft:#b3ada2; --ink-faint:#8b857b;
+    --copper:#c17d4a; --copper-bright:#d4915c; --patina:#6e9e8e;
+    --alert:#c65f52; --line:#2c3339; --line-soft:#242b30;
+    --mono:'JetBrains Mono',ui-monospace,Menlo,monospace;
+    --sans:'Inter',system-ui,sans-serif; --display:'Space Grotesk',var(--sans);
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:17px;line-height:1.65;padding-bottom:6rem}
+  .wrap{max-width:820px;margin:0 auto;padding:0 1.4rem}
+  header.top{border-bottom:1px solid var(--line);background:linear-gradient(180deg,#191e22,#161a1d)}
+  header.top .wrap{padding-top:2.6rem;padding-bottom:2.2rem}
+  .kicker{font-family:var(--mono);font-size:.8rem;color:var(--patina);margin:0 0 .9rem}
+  h1{font-family:var(--display);font-weight:700;font-size:2.2rem;line-height:1.1;margin:.2rem 0 .7rem;letter-spacing:-.015em}
+  .sub{color:var(--ink-soft);font-size:1.05rem;margin:0;max-width:64ch}
+  .quick{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:1.6rem}
+  .quick a{font-family:var(--mono);font-size:.82rem;color:var(--ink-soft);background:var(--surface-2);border:1px solid var(--line);border-radius:7px;padding:.4rem .7rem;border-bottom:1px solid var(--line)}
+  .quick a:hover{border-color:var(--copper);color:var(--ink)}
+  main .wrap{padding-top:2.4rem}
+  section{margin:2.6rem 0}
+  h2{font-family:var(--display);font-weight:600;font-size:1.45rem;margin:0 0 .3rem;letter-spacing:-.01em}
+  h3{font-family:var(--display);font-weight:600;font-size:1.08rem;margin:1.6rem 0 .5rem}
+  p{margin:.7rem 0}
+  a{color:var(--copper-bright);text-decoration:none;border-bottom:1px solid rgba(193,125,74,.35)}
+  a:hover{border-bottom-color:var(--copper-bright)}
+  strong{color:#fff;font-weight:600}
+  ul,ol{padding-left:1.3rem} li{margin:.35rem 0}
+  code{font-family:var(--mono);font-size:.86em;background:var(--surface-2);padding:.1rem .38rem;border-radius:4px;color:var(--copper-bright);border:1px solid var(--line-soft)}
+  .cmd{position:relative;background:#12161a;border:1px solid var(--line);border-left:3px solid var(--copper);border-radius:8px;margin:1rem 0;padding:.95rem 1.05rem;overflow-x:auto}
+  .cmd pre{margin:0;font-family:var(--mono);font-size:.85rem;line-height:1.55;color:#d7e0da;white-space:pre}
+  .cmd .lbl{position:absolute;top:-.62rem;left:.9rem;font-family:var(--mono);font-size:.68rem;background:var(--bg);color:var(--ink-faint);padding:0 .45rem}
+  .cmd .prompt{color:var(--patina)} .cmd .cmt{color:#6f7b74}
+  .tree{background:#12161a;border:1px solid var(--line);border-radius:8px;padding:1.1rem 1.2rem;overflow-x:auto}
+  .tree pre{margin:0;font-family:var(--mono);font-size:.83rem;line-height:1.7;color:var(--ink-soft);white-space:pre}
+  .tree .d{color:var(--patina)} .tree .f{color:var(--copper-bright)} .tree .c{color:#6f7b74}
+  .box{border-radius:8px;padding:1rem 1.15rem;margin:1.4rem 0;border:1px solid var(--line)}
+  .box p:first-child{margin-top:0} .box p:last-child{margin-bottom:0}
+  .box .h{font-family:var(--display);font-weight:600;font-size:.98rem;margin:0 0 .4rem;display:flex;align-items:center;gap:.5rem}
+  .box.opsec{background:rgba(110,158,142,.07);border-color:rgba(110,158,142,.4)} .box.opsec .h{color:var(--patina)}
+  .box.warn{background:rgba(198,95,82,.08);border-color:rgba(198,95,82,.42)} .box.warn .h{color:var(--alert)}
+  table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}
+  th,td{text-align:left;padding:.55rem .7rem;border-bottom:1px solid var(--line);vertical-align:top}
+  th{font-family:var(--mono);font-size:.78rem;color:var(--ink-faint);font-weight:500}
+  td code{white-space:nowrap}
+  #lp{position:fixed;z-index:50;max-width:300px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:.7rem .8rem;box-shadow:0 12px 30px rgba(0,0,0,.5);opacity:0;transform:translateY(4px);pointer-events:none;transition:opacity .12s ease,transform .12s ease;font-size:.85rem}
+  #lp.on{opacity:1;transform:translateY(0)}
+  #lp .lp-dom{font-family:var(--mono);font-size:.72rem;color:var(--patina);margin-bottom:.25rem;display:flex;align-items:center;gap:.4rem}
+  #lp .lp-dom img{width:14px;height:14px;border-radius:3px}
+  #lp .lp-t{font-family:var(--display);font-weight:600;color:var(--ink);line-height:1.25;margin-bottom:.2rem}
+  #lp .lp-d{color:var(--ink-soft);font-size:.8rem;line-height:1.4}
+  footer{border-top:1px solid var(--line);margin-top:3.5rem}
+  footer .wrap{padding:1.8rem 1.4rem;color:var(--ink-faint);font-size:.85rem;display:flex;justify-content:space-between;flex-wrap:wrap;gap:.6rem;font-family:var(--mono)}
+  @media (max-width:560px){h1{font-size:1.75rem}body{font-size:16px}}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <p class="kicker">Résistez aux hackeurs · Formation OSINT Telegram · Module 1</p>
+  <h1>TP1 — Déploiement &amp; prise en main</h1>
+  <p class="sub">Un TP autonome pour profiler un canal Telegram public depuis l'extérieur. Bibliothèque standard Python uniquement, aucune installation de dépendance.</p>
+  <div class="quick">
+    <a href="#prereq">Prérequis</a>
+    <a href="#arbo">Arborescence</a>
+    <a href="#install">Lancer</a>
+    <a href="#profileur">Profileur</a>
+    <a href="#depannage">Dépannage</a>
+    <a href="#opsec">OPSEC</a>
+  </div>
+</div></header>
+
+<main><div class="wrap">
+
+<section id="prereq">
+  <h2>Prérequis</h2>
+  <table>
+    <tbody>
+      <tr><th>Python</th><td><code>3.10</code> ou plus (le code utilise la syntaxe <code>str | None</code>).</td></tr>
+      <tr><th>Dépendances</th><td>Aucune. Bibliothèque standard seule. <code>requirements.txt</code> est vide, c'est normal.</td></tr>
+      <tr><th>Réseau</th><td>Accès sortant HTTPS vers <code>t.me</code>. Sans lui, seule la partie hors ligne tourne.</td></tr>
+      <tr><th>Navigateur</th><td>Pour les dorks et les index tiers. Idéalement deux moteurs (un Google, un non-Google).</td></tr>
+      <tr><th>Proxy (option)</th><td>Tor + privoxy pour router le profileur si la cible est sensible.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="arbo">
+  <h2>Arborescence de l'archive</h2>
+  <div class="tree"><pre><span class="d">tp1-decouverte-profilage-canal/</span>
+├── <span class="f">README.html</span>                     <span class="c"># ce fichier — déploiement</span>
+├── <span class="d">enonce/</span>
+│   └── <span class="f">enonce-etudiant.html</span>        <span class="c"># énoncé complet, commandes incluses</span>
+├── <span class="d">correction/</span>
+│   └── <span class="f">correction-formateur.html</span>   <span class="c"># corrigé, barème, animation</span>
+├── <span class="d">code/</span>
+│   ├── <span class="f">profileur.py</span>                <span class="c"># profileur passif (stdlib)</span>
+│   ├── <span class="f">test_hors_ligne.py</span>          <span class="c"># test parsing sans réseau</span>
+│   ├── <span class="f">requirements.txt</span>            <span class="c"># vide (stdlib)</span>
+│   └── <span class="d">exemples/</span>
+│       ├── <span class="f">canal-graine.txt</span>        <span class="c"># graine par défaut : durov</span>
+│       └── <span class="f">fixture_page1.html</span>      <span class="c"># page web preview enregistrée</span>
+└── <span class="d">data/</span>
+    ├── <span class="f">exemple-canaltest.json</span>      <span class="c"># sortie de démo (générée hors ligne)</span>
+    ├── <span class="f">exemple-canaltest.md</span>
+    └── <span class="f">README.txt</span></pre></div>
+</section>
+
+<section id="install">
+  <h2>Lancer en trois étapes</h2>
+  <h3>1. Vérifier l'installation (hors ligne)</h3>
+  <div class="cmd"><span class="lbl">terminal</span><pre><span class="prompt">$</span> cd tp1-decouverte-profilage-canal/code
+<span class="prompt">$</span> python3 --version
+<span class="prompt">$</span> python3 test_hors_ligne.py</pre></div>
+  <p>Attendu : la liste des contrôles en <code>[OK]</code> et <em>« Tous les tests passent »</em>. Si oui, le parsing fonctionne, indépendamment du réseau.</p>
+
+  <h3>2. Profiler le canal-graine</h3>
+  <div class="cmd"><span class="lbl">terminal</span><pre><span class="prompt">$</span> python3 profileur.py durov
+<span class="prompt">$</span> python3 profileur.py durov --pages 3 \
+    --json ../data/durov.json --md ../data/durov.md</pre></div>
+
+  <h3>3. Remplacer par la vraie graine de la séance</h3>
+  <p>Le formateur fournit un username. On refait l'étape 2 avec, et on suit l'énoncé.</p>
+</section>
+
+<section id="profileur">
+  <h2>Le profileur en détail</h2>
+  <p>Ce que fait <code>profileur.py</code> : il télécharge la page publique <code>https://t.me/s/&lt;canal&gt;</code> (celle qu'un visiteur anonyme voit), en extrait les métadonnées d'en-tête et les posts, puis reconstruit la liste des canaux liés à partir des reposts et des liens <code>t.me</code> cités.</p>
+
+  <h3>Choix techniques</h3>
+  <ul>
+    <li><strong>Stdlib seule</strong> (<code>urllib</code>, <code>re</code>, <code>html.parser</code>) : rien à installer, rien à mettre à jour, portable sur n'importe quel poste de salle.</li>
+    <li><strong>Extraction par motifs sur les classes CSS stables</strong> du web preview (<code>counter_value</code>/<code>counter_type</code>, <code>tgme_widget_message</code>, <code>forwarded_from_name</code>). Un mini-parseur HTML sert de repli pour nettoyer le texte des posts.</li>
+    <li><strong>Comptage dé-doublonné par post</strong> : un canal cité plusieurs fois dans le même post ne pèse qu'une fois, pour ne pas gonfler artificiellement les « liés ».</li>
+    <li><strong>Pagination polie</strong> via <code>?before=&lt;id&gt;</code> avec une pause entre pages (OPSEC + on n'agresse pas le service).</li>
+  </ul>
+
+  <h3>Toutes les options</h3>
+  <table>
+    <thead><tr><th>Option</th><th>Effet</th></tr></thead>
+    <tbody>
+      <tr><td><code>canal</code></td><td>username, <code>@username</code> ou URL t.me. Normalisé automatiquement.</td></tr>
+      <tr><td><code>--pages N</code></td><td>Remonte N pages d'historique (défaut 1). Plus de pages = plus de canaux liés.</td></tr>
+      <tr><td><code>--json FICHIER</code></td><td>Écrit le profil complet en JSON.</td></tr>
+      <tr><td><code>--md FICHIER</code></td><td>Écrit une fiche lisible en Markdown.</td></tr>
+      <tr><td><code>--proxy URL</code></td><td>Route la requête via un proxy HTTP (ex. <code>http://127.0.0.1:8118</code>).</td></tr>
+      <tr><td><code>--pause S</code></td><td>Pause entre pages en secondes (défaut 1.0).</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Router sous Tor (cible sensible)</h3>
+  <div class="cmd"><span class="lbl">terminal</span><pre><span class="prompt">$</span> <span class="cmt"># Tor écoute en SOCKS sur 9050 ; privoxy expose un proxy HTTP local</span>
+<span class="prompt">$</span> sudo apt install tor privoxy         <span class="cmt"># si absent</span>
+<span class="prompt">$</span> <span class="cmt"># dans /etc/privoxy/config : forward-socks5 / 127.0.0.1:9050 .</span>
+<span class="prompt">$</span> python3 profileur.py &lt;canal&gt; --proxy http://127.0.0.1:8118</pre></div>
+</section>
+
+<section id="depannage">
+  <h2>Dépannage</h2>
+  <table>
+    <thead><tr><th>Symptôme</th><th>Cause probable</th><th>Que faire</th></tr></thead>
+    <tbody>
+      <tr><td><code>HTTP 403</code></td><td>Canal privé, inexistant, ou preview désactivée</td><td>Ce n'est pas un bug : c'est un renseignement sur la cible. Le noter.</td></tr>
+      <tr><td>Page reçue mais champs vides</td><td>Preview publique non activée par le canal</td><td>Se rabattre sur les index tiers (§5 de l'énoncé).</td></tr>
+      <tr><td><code>URLError</code> / timeout</td><td>Réseau de salle bloque <code>t.me</code></td><td>Valider hors ligne avec <code>test_hors_ligne.py</code>, débloquer <code>t.me</code>, ou passer par <code>--proxy</code>.</td></tr>
+      <tr><td><code>SyntaxError</code> sur <code>str | None</code></td><td>Python &lt; 3.10</td><td>Mettre à jour Python.</td></tr>
+      <tr><td>Peu de canaux liés</td><td><code>--pages</code> trop faible</td><td>Augmenter <code>--pages</code> (3 à 5).</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="opsec">
+  <h2>Note OPSEC</h2>
+  <div class="box opsec">
+    <p class="h">◆ Ce TP est passif — et doit le rester</p>
+    <p>Tout passe par des surfaces publiques en lecture seule : moteurs, index tiers, web preview. <strong>On ne rejoint jamais le canal cible, on n'écrit rien, on ne réagit à rien.</strong> Le profileur ne fait que des requêtes GET anonymes, comme un navigateur.</p>
+    <p>Pour une cible réellement sensible : réseau dédié (VPN/Tor via <code>--proxy</code>), et on garde à l'esprit qu'un index tiers, lui, peut journaliser la consultation. Croiser reste plus sûr que se connecter.</p>
+  </div>
+  <div class="box warn">
+    <p class="h">⚠ Cadre d'usage</p>
+    <p>Support pédagogique de profilage OSINT défensif. Le profilage se limite à des données publiques, sur des canaux choisis dans un cadre de formation ou d'investigation légitime.</p>
+  </div>
+</section>
+
+</div></main>
+
+<footer><div class="wrap">
+  <span>Résistez aux hackeurs — Formation OSINT</span>
+  <span>TP1 · README · v1</span>
+</div></footer>
+
+<div id="lp" role="tooltip" aria-hidden="true">
+  <div class="lp-dom"><img alt="" id="lp-ico"><span id="lp-dom"></span></div>
+  <div class="lp-t" id="lp-t"></div>
+  <div class="lp-d" id="lp-d"></div>
+</div>
+<script>
+/* Link preview local : carte au survol des liens externes (aucun appel réseau
+   pour les métadonnées ; le favicon distant est optionnel et masqué s'il échoue). */
+(function(){
+  var DB = {
+    "tgstat.com":{t:"TGStat",d:"Index et statistiques de canaux Telegram."},
+    "telemetr.io":{t:"Telemetr",d:"Statistiques d'audience et de croissance."},
+    "lyzem.com":{t:"Lyzem",d:"Recherche plein-texte sur les canaux publics."},
+    "t.me":{t:"Telegram — web preview",d:"Page publique en lecture seule d'un canal."}
+  };
+  var lp=document.getElementById('lp'),ico=document.getElementById('lp-ico');
+  var dom=document.getElementById('lp-dom'),tt=document.getElementById('lp-t'),dd=document.getElementById('lp-d');
+  function host(u){try{return new URL(u).hostname.replace(/^www\./,'');}catch(e){return null;}}
+  function show(a){var h=host(a.href);if(!h)return;
+    var key=Object.keys(DB).find(function(k){return h===k||h.endsWith('.'+k);});
+    var i=key?DB[key]:{t:h,d:"Lien externe."};
+    dom.textContent=h;tt.textContent=i.t;dd.textContent=i.d;
+    ico.src="https://www.google.com/s2/favicons?domain="+h+"&sz=32";
+    ico.style.display='';ico.onerror=function(){ico.style.display='none';};
+    lp.classList.add('on');lp.setAttribute('aria-hidden','false');}
+  function place(e){var pad=14,w=lp.offsetWidth,h=lp.offsetHeight,x=e.clientX+pad,y=e.clientY+pad;
+    if(x+w>innerWidth-8)x=e.clientX-w-pad;if(y+h>innerHeight-8)y=e.clientY-h-pad;
+    lp.style.left=Math.max(8,x)+'px';lp.style.top=Math.max(8,y)+'px';}
+  function hide(){lp.classList.remove('on');lp.setAttribute('aria-hidden','true');}
+  document.querySelectorAll('a[href^="http"]').forEach(function(a){
+    a.addEventListener('mouseenter',function(e){show(a);place(e);});
+    a.addEventListener('mousemove',place);a.addEventListener('mouseleave',hide);
+    a.addEventListener('focus',function(){show(a);var r=a.getBoundingClientRect();lp.style.left=r.left+'px';lp.style.top=(r.bottom+8)+'px';});
+    a.addEventListener('blur',hide);});
+})();
+</script>
+</body>
+</html>

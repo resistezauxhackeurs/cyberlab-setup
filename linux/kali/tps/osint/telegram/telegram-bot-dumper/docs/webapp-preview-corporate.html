@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bot Dump Viewer — corporate preview</title>
+<!--
+  Static, self-contained mockup for the README (corporate use case). SYNTHETIC
+  data only (fictional company/employees; no real names, tokens or hosts).
+  Open in a browser and screenshot to docs/webapp-corporate.png. No server/JS.
+-->
+<style>
+  :root{
+    --blue:#2f83e0; --panel:#ffffff; --border:#e6e6e6; --hover:#f4f6f8;
+    --active:#2f83e0; --muted:#8b96a3; --text:#0f1720;
+    --user:#e8f2fd; --bot:#ffffff; --code:#eef1f4;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0}
+  body{font:15.5px/1.5 -apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--text);
+       background:#c9d6e5;overflow:hidden}
+  #app{display:flex;height:100vh}
+  /* sidebar */
+  #side{width:362px;min-width:362px;background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column}
+  #side header{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border)}
+  .botav{width:44px;height:44px;border-radius:12px;flex:none;background:var(--blue);display:flex;align-items:center;justify-content:center;font-size:24px}
+  #side .title{font-weight:600;font-size:15px}
+  #side .sub{color:var(--muted);font-size:12.5px;margin-top:1px;white-space:nowrap}
+  .live{font-size:11px;padding:1px 8px;border-radius:9px;margin-left:6px;white-space:nowrap;background:#e6f4ea;color:#1a7f37}
+  #searchbar{padding:10px 12px}
+  #searchbar .box{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:20px;background:#f1f3f5;color:var(--muted);font-size:14px}
+  .seclabel{display:flex;align-items:center;gap:8px;padding:4px 18px 8px;color:var(--muted);font-size:13px;font-weight:600}
+  #list{overflow-y:auto;flex:1}
+  .row{display:flex;gap:13px;padding:9px 16px;cursor:pointer;align-items:center}
+  .row:hover{background:var(--hover)}
+  .row.active{background:var(--active)}
+  .row.active .name,.row.active .snippet,.row.active .time,.row.active .badge{color:#fff}
+  .row .meta{flex:1;min-width:0}
+  .row .top{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+  .name{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .time{color:var(--muted);font-size:12px;white-space:nowrap}
+  .snippet{color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:14.5px;margin-top:2px}
+  .badge{color:var(--muted);font-size:12px;text-align:right;margin-top:2px}
+  .av{width:48px;height:48px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:600;font-size:16px}
+  /* main */
+  #main{width:640px;flex:none;min-width:0;display:flex;flex-direction:column;background:#c9d6e5}
+  #main header{display:flex;align-items:center;gap:12px;padding:9px 20px;background:#fff;border-bottom:1px solid var(--border)}
+  #main header .av{width:42px;height:42px;font-size:15px}
+  #main header .name{font-weight:600;font-size:15px}
+  #main header .sub{color:var(--muted);font-size:12.5px}
+  .kebab{margin-left:auto;color:#95a1ad;font-size:20px;letter-spacing:2px}
+  #msgs{flex:1;overflow-y:hidden;padding:4px 18px 6px;display:flex;flex-direction:column;gap:3px}
+  .day{align-self:center;background:rgba(72,88,110,.55);color:#fff;font-size:12.5px;padding:3px 12px;border-radius:12px;margin:0 0 1px}
+  .m{display:flex;gap:10px;max-width:84%}
+  .m.bot{align-self:flex-start}
+  .m.user{align-self:flex-end;flex-direction:row-reverse}
+  .mav{width:30px;height:30px;border-radius:9px;flex:none;background:var(--blue);display:flex;align-items:center;justify-content:center;font-size:16px;align-self:flex-end}
+  .bub{padding:6px 14px 4px;border-radius:15px;position:relative;box-shadow:0 1px 2px rgba(20,40,80,.12);min-width:0}
+  .m.bot .bub{background:var(--bot);border-bottom-left-radius:5px}
+  .m.user .bub{background:var(--user);border-bottom-right-radius:5px}
+  .lbl{font-size:13px;font-weight:700;color:var(--blue);margin-bottom:3px}
+  .txt{white-space:pre-wrap;overflow-wrap:anywhere}
+  .code{display:inline-block;margin-top:6px;padding:4px 9px;border-radius:6px;background:var(--code);
+        font:14.5px/1.4 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:#1f2d3d}
+  .meta2{display:flex;justify-content:flex-end;align-items:center;gap:4px;margin-top:3px}
+  .t{font-size:11px;color:var(--muted)}
+  .ck{color:var(--blue);font-size:12px}
+  /* file card */
+  .file{display:flex;align-items:center;gap:12px;margin-top:6px;padding:6px;border:1px solid #e7ebf0;border-radius:10px;background:#fff}
+  .m.user .file{background:#f3f8fe;border-color:#dbe8f7}
+  .fic{width:44px;height:44px;border-radius:10px;flex:none;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:12px}
+  .fic.pdf{background:#e2504c}
+  .fic.doc{background:#7f8b99;font-size:20px;font-weight:400}
+  .fn{font-weight:600}
+  .fsz{color:var(--muted);font-size:12.5px;margin-top:1px}
+</style>
+</head>
+<body>
+<div id="app">
+  <aside id="side">
+    <header>
+      <span class="botav">🤖</span>
+      <div><div class="title">Internal AI Assistant</div>
+        <div class="sub">@company_ai_bot · 124 conversations<span class="live">● live · 3</span></div></div>
+    </header>
+    <div id="searchbar"><div class="box">🔍 Search messages</div></div>
+    <div class="seclabel">👥 Conversations with this bot</div>
+    <div id="list">
+      <div class="row active">
+        <span class="av" style="background:#a48ee0">JS</span>
+        <div class="meta">
+          <div class="top"><div class="name">John Smith</div><div class="time">14:27</div></div>
+          <div class="top"><div class="snippet">The configuration exposes the admin…</div><div class="badge">12</div></div>
+        </div>
+      </div>
+      <div class="row">
+        <span class="av" style="background:#5bbf7b">AT</span>
+        <div class="meta">
+          <div class="top"><div class="name">Anna Taylor</div><div class="time">13:12</div></div>
+          <div class="top"><div class="snippet">Thanks for the help!</div><div class="badge">8</div></div>
+        </div>
+      </div>
+      <div class="row">
+        <span class="av" style="background:#ef8a4b">MC</span>
+        <div class="meta">
+          <div class="top"><div class="name">Mark Chen</div><div class="time">11:45</div></div>
+          <div class="top"><div class="snippet">Here is the error log</div><div class="badge">6</div></div>
+        </div>
+      </div>
+      <div class="row">
+        <span class="av" style="background:#ec6ea6">ES</span>
+        <div class="meta">
+          <div class="top"><div class="name">Emily Stone</div><div class="time">10:21</div></div>
+          <div class="top"><div class="snippet">Can you summarize this document?</div><div class="badge">4</div></div>
+        </div>
+      </div>
+      <div class="row">
+        <span class="av" style="background:#4aa8e0">DK</span>
+        <div class="meta">
+          <div class="top"><div class="name">Daniel Kim</div><div class="time">Sep 9</div></div>
+          <div class="top"><div class="snippet">What's the best way to deploy?</div><div class="badge">7</div></div>
+        </div>
+      </div>
+      <div class="row">
+        <span class="av" style="background:#e5c150">SL</span>
+        <div class="meta">
+          <div class="top"><div class="name">Sarah Lee</div><div class="time">Sep 8</div></div>
+          <div class="top"><div class="snippet">How do I get access to the database?</div><div class="badge">5</div></div>
+        </div>
+      </div>
+      <div class="row">
+        <span class="av" style="background:#8a97a6">RT</span>
+        <div class="meta">
+          <div class="top"><div class="name">Robert Thompson</div><div class="time">Sep 8</div></div>
+          <div class="top"><div class="snippet">Can you review this architecture?</div><div class="badge">3</div></div>
+        </div>
+      </div>
+      <div class="row">
+        <span class="av" style="background:#9b8ce0">NP</span>
+        <div class="meta">
+          <div class="top"><div class="name">Nina Patel</div><div class="time">Sep 7</div></div>
+          <div class="top"><div class="snippet">What are the backup procedures?</div><div class="badge">6</div></div>
+        </div>
+      </div>
+    </div>
+  </aside>
+  <section id="main">
+    <header>
+      <span class="av" style="background:#a48ee0">JS</span>
+      <div><div class="name">John Smith</div><div class="sub">Chat with @company_ai_bot</div></div>
+      <span class="kebab">⋮</span>
+    </header>
+    <div id="msgs">
+      <div class="day">2026-09-09</div>
+
+      <div class="m user"><div class="bub">
+        <div class="lbl">USER</div>
+        <div class="txt">What's the staging server URL?</div>
+        <div class="meta2"><span class="t">14:01</span><span class="ck">✓✓</span></div>
+      </div></div>
+
+      <div class="m bot"><span class="mav">🤖</span><div class="bub">
+        <div class="lbl">INTERNAL AI ASSISTANT</div>
+        <div class="txt">The staging environment is available at</div>
+        <div class="code">staging.company.internal</div>
+        <div class="meta2"><span class="t">14:01</span></div>
+      </div></div>
+
+      <div class="m user"><div class="bub">
+        <div class="lbl">USER</div>
+        <div class="txt">How do I get VPN access?</div>
+        <div class="meta2"><span class="t">14:03</span><span class="ck">✓✓</span></div>
+      </div></div>
+
+      <div class="m bot"><span class="mav">🤖</span><div class="bub">
+        <div class="lbl">INTERNAL AI ASSISTANT</div>
+        <div class="txt">Submit an access request through the IT portal. The VPN profile is attached below.</div>
+        <div class="file"><div class="fic pdf">PDF</div><div><div class="fn">VPN_Setup.pdf</div><div class="fsz">2.4 MB</div></div></div>
+        <div class="meta2"><span class="t">14:04</span></div>
+      </div></div>
+
+      <div class="m user"><div class="bub">
+        <div class="lbl">USER</div>
+        <div class="txt">Can you check this config?</div>
+        <div class="file"><div class="fic doc">≡</div><div><div class="fn">nginx.conf</div><div class="fsz">1.1 KB</div></div></div>
+        <div class="meta2"><span class="t">14:15</span><span class="ck">✓✓</span></div>
+      </div></div>
+
+      <div class="m bot"><span class="mav">🤖</span><div class="bub">
+        <div class="lbl">INTERNAL AI ASSISTANT</div>
+        <div class="txt">The configuration exposes the admin endpoint on port 8080. You should restrict it to the internal network.</div>
+        <div class="meta2"><span class="t">14:27</span></div>
+      </div></div>
+    </div>
+  </section>
+</div>
+</body>
+</html>

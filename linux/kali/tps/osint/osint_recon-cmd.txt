@@ -1,0 +1,34 @@
+
+CRT.SH
+	Requêter crt.sh avec curl
+		curl -s https://crt.sh/\?q=michelin.fr\&output=json | jq '.[].id' > cert.sh.ids
+
+	Identifier les subject:organizationName
+		while read id; do curl -s https://crt.sh/\?id=$id; done < cert.sh.ids | sed 's/\&nbsp;/\ /g' | perl -lne 'print $1 if /Subject:<BR>.*?organizationName\s*?=\s(.*?)<BR>/'
+		
+	Récupérer la liste de FQDN par subject:organizationName
+		~/outils/recon$ ./crt.sh -o "Manufacture+Francaise+des+Pneumatiques+Michelin+SAS"
+
+	Identifier les TLD
+		script parse_fld.py
+		
+		
+	Extraire la liste d’organisations AS (Autonomous System)
+		cat output-dnsdump/*.txt | perl -lne 'print $1 if /<td class="col-md-3">([A-Z-]*?)<br>/' | sort -u
+		csrftoken=$(curl -ILs https://dnsdumpster.com | grep csrftoken | cut -d " " -f2 | cut -d "=" -f2 | tr -d ";")
+		while read domain; do curl -s --header "Host:dnsdumpster.com" --referer https://dnsdumpster.com --user-agent "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:45.0) Gecko/20100101 Firefox/45.0" --data "csrfmiddlewaretoken=$csrftoken&targetip=$domain&user=free" --cookie "csrftoken=$csrftoken; _ga=GA1.2.1737013576.1458811829; _gat=1" https://dnsdumpster.com >> output-dnsdump/$domain.txt; sleep 1; done < jd.ctl.txt
+		
+DNS passif
+	./subfinder -d michelin.fr
+	
+	
+Whois
+	lookup.icann.org
+	whois <domain>
+	whois.domaintools.com/
+
+Recherche dans le passé
+	https://web.archive.org/
+	
+Information DNS
+	viewdns.info

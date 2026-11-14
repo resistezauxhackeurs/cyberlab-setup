@@ -1,0 +1,13 @@
+
+
+#### CLOUD_ENUM 14/05/2024 09:12:51 ####
+AWS App Found:: https://haro.awsapps.com
+HTTPS-Only Account: http://haro.blob.core.windows.net/
+HTTPS-Only Account: http://haro.file.core.windows.net/
+HTTPS-Only Account: http://haro.queue.core.windows.net/
+HTTPS-Only Account: http://haro.table.core.windows.net/
+Registered Azure Website DNS Name: haro.azurewebsites.net
+Registered Azure Website DNS Name: appharo.azurewebsites.net
+Protected Google Bucket: http://storage.googleapis.com/haro
+OPEN GOOGLE BUCKET: http://storage.googleapis.com/haro-1
+Protected Google Firebase RTDB: https://haro-development.firebaseio.com/.json

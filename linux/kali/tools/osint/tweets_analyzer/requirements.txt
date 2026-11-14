@@ -1,0 +1,13 @@
+ascii-graph
+certifi
+chardet
+idna
+#numpy==1.15.1
+oauthlib
+PySocks
+requests
+requests-oauthlib
+six
+tqdm
+tweepy
+urllib3

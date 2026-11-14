@@ -1,0 +1,13 @@
+root
+eleve
+admin
+administrator
+administrateur
+backup
+prof
+ssh
+guest
+backup
+test
+support
+sshd

@@ -1,0 +1,19 @@
+# Secrets / environnements locaux
+.env
+.env.*
+*.pem
+*.key
+id_rsa
+id_ed25519
+secrets/
+*.tfstate
+*.tfstate.*
+.terraform/
+.venv/
+__pycache__/
+*.log
+*.tar.gz
+kali-packages-*.tar.gz
+# Exception : l'archive de migration de référence livrée avec le dépôt est
+# versionnée, pour que la restauration fonctionne directement après un clone.
+!linux/kali/migration/kali-packages-*.tar.gz

@@ -1,0 +1,11 @@
+Rechercher votre entreprise (nom de domaine)
+Chercher les serveurs avec le protocole rdp accessible (3389)
+Chercher les serveurs avec le protocole rdp avec une capture d’écran
+Chercher les serveurs mysql en version 5.5
+Chercher les serveurs IIS 6.0 avec une interface Exchange web ouverte
+Chercher les serveurs MongoDB avec le port 27017 ouverts situés en France
+Chercher les serveurs mongodb sans authentification
+Chercher les vpn Fortinet
+Chercher les services ftp sans authentification
+Chercher les partages de fichiers accessibles en france sans authentification
+

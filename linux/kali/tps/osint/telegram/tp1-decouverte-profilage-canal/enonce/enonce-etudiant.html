@@ -1,0 +1,331 @@
+<!-- enonce/enonce-etudiant.html -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>TP1 — Découverte et profilage de canal · Résistez aux hackeurs</title>
+<meta name="description" content="TP1 OSINT Telegram : profiler un canal public depuis l'extérieur, sans le rejoindre. Dorks site:t.me, index tiers, méthode catalogue avant clic.">
+<!-- Link preview (Open Graph) pour le partage -->
+<meta property="og:type" content="article">
+<meta property="og:title" content="TP1 — Découverte et profilage de canal Telegram">
+<meta property="og:description" content="Profiler un canal public depuis l'extérieur : abonnés, ancienneté, catégorie, canaux liés — sans jamais le rejoindre.">
+<meta property="og:site_name" content="Résistez aux hackeurs — Formation OSINT">
+<!-- Favicon (iconv) : graphe de canaux liés -->
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23161a1d'/%3E%3Cline%20x1='16'%20y1='16'%20x2='7'%20y2='8'%20stroke='%236e9e8e'%20stroke-width='1.6'/%3E%3Cline%20x1='16'%20y1='16'%20x2='25'%20y2='9'%20stroke='%236e9e8e'%20stroke-width='1.6'/%3E%3Cline%20x1='16'%20y1='16'%20x2='9'%20y2='25'%20stroke='%236e9e8e'%20stroke-width='1.6'/%3E%3Cline%20x1='16'%20y1='16'%20x2='24'%20y2='24'%20stroke='%236e9e8e'%20stroke-width='1.6'/%3E%3Ccircle%20cx='7'%20cy='8'%20r='3'%20fill='%23c17d4a'/%3E%3Ccircle%20cx='25'%20cy='9'%20r='2.4'%20fill='%23c17d4a'/%3E%3Ccircle%20cx='9'%20cy='25'%20r='2.4'%20fill='%23c17d4a'/%3E%3Ccircle%20cx='24'%20cy='24'%20r='2.4'%20fill='%23c17d4a'/%3E%3Ccircle%20cx='16'%20cy='16'%20r='4.2'%20fill='%23e6e1d8'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#161a1d; --surface:#1e2429; --surface-2:#232b31;
+    --ink:#e6e1d8; --ink-soft:#b3ada2; --ink-faint:#8b857b;
+    --copper:#c17d4a; --copper-bright:#d4915c; --patina:#6e9e8e;
+    --alert:#c65f52; --line:#2c3339; --line-soft:#242b30;
+    --mono:'JetBrains Mono',ui-monospace,Menlo,monospace;
+    --sans:'Inter',system-ui,sans-serif;
+    --display:'Space Grotesk',var(--sans);
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth; -webkit-text-size-adjust:100%}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:var(--sans); font-size:17px; line-height:1.65;
+    padding-bottom:6rem;
+  }
+  .wrap{max-width:760px; margin:0 auto; padding:0 1.4rem}
+
+  /* En-tête */
+  header.top{border-bottom:1px solid var(--line); background:linear-gradient(180deg,#191e22,#161a1d)}
+  header.top .wrap{padding-top:2.6rem; padding-bottom:2.2rem}
+  .kicker{font-family:var(--mono); font-size:.8rem; color:var(--patina); letter-spacing:.02em; margin:0 0 .9rem}
+  .kicker a{color:var(--patina)}
+  h1{font-family:var(--display); font-weight:700; font-size:2.35rem; line-height:1.1; margin:.2rem 0 .7rem; letter-spacing:-.015em}
+  .sub{color:var(--ink-soft); font-size:1.08rem; margin:0; max-width:60ch}
+  .meta{display:flex; flex-wrap:wrap; gap:.5rem .9rem; margin-top:1.6rem; font-family:var(--mono); font-size:.82rem; color:var(--ink-faint)}
+  .meta span{display:inline-flex; align-items:center; gap:.4rem}
+  .chip{background:var(--surface-2); border:1px solid var(--line); border-radius:6px; padding:.2rem .55rem; color:var(--ink-soft)}
+
+  /* Corps */
+  main .wrap{padding-top:2.4rem}
+  section{margin:2.6rem 0}
+  h2{font-family:var(--display); font-weight:600; font-size:1.5rem; margin:0 0 .3rem; letter-spacing:-.01em; display:flex; align-items:baseline; gap:.7rem}
+  h2 .num{font-family:var(--mono); font-size:1rem; color:var(--copper); font-weight:500; flex:none}
+  h3{font-family:var(--display); font-weight:600; font-size:1.12rem; margin:1.8rem 0 .5rem; color:var(--ink)}
+  p{margin:.7rem 0}
+  a{color:var(--copper-bright); text-decoration:none; border-bottom:1px solid rgba(193,125,74,.35)}
+  a:hover{border-bottom-color:var(--copper-bright)}
+  strong{color:#fff; font-weight:600}
+  ul,ol{padding-left:1.3rem} li{margin:.35rem 0}
+  code{font-family:var(--mono); font-size:.86em; background:var(--surface-2); padding:.1rem .38rem; border-radius:4px; color:var(--copper-bright); border:1px solid var(--line-soft)}
+
+  /* Blocs de commande */
+  .cmd{position:relative; background:#12161a; border:1px solid var(--line); border-left:3px solid var(--copper); border-radius:8px; margin:1rem 0; padding:.95rem 1.05rem; overflow-x:auto}
+  .cmd pre{margin:0; font-family:var(--mono); font-size:.85rem; line-height:1.55; color:#d7e0da; white-space:pre}
+  .cmd .lbl{position:absolute; top:-.62rem; left:.9rem; font-family:var(--mono); font-size:.68rem; background:var(--bg); color:var(--ink-faint); padding:0 .45rem}
+  .cmd .prompt{color:var(--patina)}
+  .cmd .cmt{color:#6f7b74}
+
+  /* Encadrés */
+  .box{border-radius:8px; padding:1rem 1.15rem; margin:1.4rem 0; border:1px solid var(--line)}
+  .box p:first-child{margin-top:0} .box p:last-child{margin-bottom:0}
+  .box .h{font-family:var(--display); font-weight:600; font-size:.98rem; margin:0 0 .4rem; display:flex; align-items:center; gap:.5rem}
+  .box.opsec{background:rgba(110,158,142,.07); border-color:rgba(110,158,142,.4)}
+  .box.opsec .h{color:var(--patina)}
+  .box.rendu{background:rgba(193,125,74,.08); border-color:rgba(193,125,74,.4)}
+  .box.rendu .h{color:var(--copper-bright)}
+  .box.warn{background:rgba(198,95,82,.08); border-color:rgba(198,95,82,.42)}
+  .box.warn .h{color:var(--alert)}
+
+  /* Tableau barème */
+  table{width:100%; border-collapse:collapse; margin:1rem 0; font-size:.94rem}
+  th,td{text-align:left; padding:.55rem .7rem; border-bottom:1px solid var(--line)}
+  th{font-family:var(--mono); font-size:.78rem; color:var(--ink-faint); font-weight:500}
+  td.pts{font-family:var(--mono); color:var(--copper); white-space:nowrap; text-align:right}
+
+  /* Carte de link preview (survol des liens externes) */
+  #lp{position:fixed; z-index:50; max-width:300px; background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:.7rem .8rem; box-shadow:0 12px 30px rgba(0,0,0,.5); opacity:0; transform:translateY(4px); pointer-events:none; transition:opacity .12s ease, transform .12s ease; font-size:.85rem}
+  #lp.on{opacity:1; transform:translateY(0)}
+  #lp .lp-dom{font-family:var(--mono); font-size:.72rem; color:var(--patina); margin-bottom:.25rem; display:flex; align-items:center; gap:.4rem}
+  #lp .lp-dom img{width:14px; height:14px; border-radius:3px}
+  #lp .lp-t{font-family:var(--display); font-weight:600; color:var(--ink); line-height:1.25; margin-bottom:.2rem}
+  #lp .lp-d{color:var(--ink-soft); font-size:.8rem; line-height:1.4}
+
+  footer{border-top:1px solid var(--line); margin-top:3.5rem}
+  footer .wrap{padding:1.8rem 1.4rem; color:var(--ink-faint); font-size:.85rem; display:flex; justify-content:space-between; flex-wrap:wrap; gap:.6rem; font-family:var(--mono)}
+
+  @media (max-width:560px){ h1{font-size:1.9rem} body{font-size:16px} }
+  @media (prefers-reduced-motion:reduce){ *{transition:none!important; scroll-behavior:auto} }
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <p class="kicker"><a href="#">Résistez aux hackeurs</a> · Formation OSINT Telegram · Module 1</p>
+  <h1>TP1 — Découverte et profilage de canal</h1>
+  <p class="sub">Profiler un canal Telegram public <strong>depuis l'extérieur</strong>, sans jamais le rejoindre : combien d'abonnés, depuis quand, quelle thématique, et à quels autres canaux il est relié.</p>
+  <div class="meta">
+    <span class="chip">Niveau : débutant</span>
+    <span class="chip">Durée : 1 h 30</span>
+    <span class="chip">Poste : navigateur + Python 3.10+</span>
+  </div>
+</div></header>
+
+<main><div class="wrap">
+
+<section id="objectif">
+  <h2><span class="num">1</span> Ce que tu vas faire</h2>
+  <p>Un canal Telegram public expose beaucoup de choses à un simple visiteur, sans qu'on ait besoin d'un compte ni de le rejoindre. Ton travail : partir d'un <strong>canal-graine</strong> (fourni par le formateur) et en dresser une fiche de profil complète en restant <strong>à l'extérieur</strong>.</p>
+  <p>Trois surfaces d'observation, dans cet ordre :</p>
+  <ol>
+    <li><strong>Les moteurs de recherche</strong> — pour retrouver le canal et ce qui parle de lui, via des <em>dorks</em> <code>site:t.me</code>.</li>
+    <li><strong>Les index tiers</strong> — des annuaires qui suivent les canaux (abonnés, date de création estimée, catégorie).</li>
+    <li><strong>Le « web preview » de Telegram</strong> — la page <code>t.me/s/&lt;canal&gt;</code> qu'on lit en clair dans le navigateur, puis qu'on automatise.</li>
+  </ol>
+  <p>La règle du jeu s'appelle <strong>« catalogue avant clic »</strong> : on lit tout ce qu'on peut lire sans interagir, on note, on recoupe — et seulement si c'est vraiment nécessaire on envisage d'aller plus loin. Ici, on ne va <em>jamais</em> plus loin : tout se fait sans rejoindre.</p>
+</section>
+
+<section id="opsec">
+  <h2><span class="num">2</span> Règles avant de commencer</h2>
+  <div class="box opsec">
+    <p class="h">◆ Hygiène OPSEC — à respecter tout le TP</p>
+    <ul>
+      <li><strong>Ne rejoins jamais le canal.</strong> Rejoindre te rend visible dans la liste des membres (sur un groupe) et laisse une trace. Le web preview, lui, est anonyme.</li>
+      <li><strong>Ne clique pas dans l'app Telegram avec ton compte perso.</strong> Tout se passe dans le navigateur, sur <code>t.me/s/…</code> et les index tiers.</li>
+      <li><strong>N'écris rien, ne réagis à rien, ne télécharge aucun média</strong> depuis le canal cible.</li>
+      <li>Si le canal est sensible : réseau dédié (VPN ou Tor), pas ton IP habituelle. Le profileur a une option <code>--proxy</code> pour ça (voir §6).</li>
+    </ul>
+  </div>
+  <p>Le canal-graine du TP est public et neutre — mais on applique quand même la discipline, parce qu'elle doit devenir un réflexe.</p>
+</section>
+
+<section id="setup">
+  <h2><span class="num">3</span> Mise en route</h2>
+  <p>Vérifie ta version de Python, place-toi dans le dossier du TP et note le canal-graine.</p>
+  <div class="cmd"><span class="lbl">terminal</span><pre><span class="prompt">$</span> python3 --version        <span class="cmt"># doit afficher 3.10 ou plus</span>
+<span class="prompt">$</span> cd tp1-decouverte-profilage-canal/code
+<span class="prompt">$</span> cat exemples/canal-graine.txt   <span class="cmt"># le canal-graine par défaut</span></pre></div>
+  <p>Le canal-graine par défaut est <code>durov</code> (le canal public de Pavel Durov). <strong>Remplace-le par le canal que le formateur t'a donné</strong> quand tu l'as. Dans tout ce qui suit, on note ce canal <code>&lt;GRAINE&gt;</code>.</p>
+</section>
+
+<section id="dorks">
+  <h2><span class="num">4</span> Ratisser avec des dorks <code>site:t.me</code></h2>
+  <p>Un <em>dork</em>, c'est une requête de moteur de recherche affinée avec des opérateurs. On s'en sert ici pour deux choses : retrouver un canal à partir d'un mot-clé, et trouver <strong>qui parle de notre graine</strong>.</p>
+
+  <h3>4.1 — Retrouver des canaux par thème</h3>
+  <p>Dans ton moteur (essaie-en deux : un Google, un non-Google comme Brave ou DuckDuckGo — les résultats diffèrent) :</p>
+  <div class="cmd"><span class="lbl">requêtes moteur</span><pre>site:t.me <span class="cmt">mot-clé</span>
+site:t.me/s <span class="cmt">mot-clé</span>          <span class="cmt"># cible les pages « web preview » indexées</span>
+site:t.me "<span class="cmt">expression exacte</span>"
+site:t.me <span class="cmt">mot-clé</span> -bot         <span class="cmt"># exclut les comptes de bots</span></pre></div>
+  <p>La variante <code>site:t.me/s</code> est précieuse : elle remonte des pages preview déjà moissonnées par le moteur, donc lisibles d'un clic.</p>
+
+  <h3>4.2 — Trouver qui cite ta graine</h3>
+  <p>On cherche le username de la graine mentionné ailleurs :</p>
+  <div class="cmd"><span class="lbl">requêtes moteur</span><pre>"t.me/<span class="cmt">&lt;GRAINE&gt;</span>" -site:t.me     <span class="cmt"># pages hors Telegram qui pointent vers la graine</span>
+"@<span class="cmt">&lt;GRAINE&gt;</span>"                     <span class="cmt"># mentions du handle</span>
+site:t.me "<span class="cmt">&lt;GRAINE&gt;</span>"              <span class="cmt"># autres canaux qui la nomment</span></pre></div>
+  <div class="box rendu">
+    <p class="h">▸ À noter dans ta fiche</p>
+    <p>Pour 3 à 5 résultats pertinents : l'URL, ce que la page dit de la graine, et si c'est un <strong>autre canal</strong> qui la cite (candidat « canal lié »).</p>
+  </div>
+</section>
+
+<section id="index">
+  <h2><span class="num">5</span> Lire les index tiers</h2>
+  <p>Des sites suivent l'écosystème Telegram et publient des stats qu'on ne voit pas toujours sur le canal lui-même : nombre d'abonnés dans le temps, <strong>date de création estimée</strong>, catégorie, canaux similaires. On les lit, on ne s'y inscrit pas.</p>
+  <ul>
+    <li><a href="https://tgstat.com" data-preview>tgstat.com</a> — le plus complet : abonnés, historique, catégorie, canaux liés/similaires. Recherche <code>tgstat.com/channel/@&lt;GRAINE&gt;</code>.</li>
+    <li><a href="https://telemetr.io" data-preview>telemetr.io</a> — stats d'audience et croissance.</li>
+    <li><a href="https://lyzem.com" data-preview>lyzem.com</a> — moteur de recherche plein-texte sur les canaux publics.</li>
+    <li><a href="https://tgstat.ru" data-preview>tgstat.ru</a> — variante, parfois plus fournie sur les canaux russophones.</li>
+  </ul>
+  <div class="box opsec">
+    <p class="h">◆ Croiser, ne pas croire</p>
+    <p>Un index tiers <strong>estime</strong>. La date de création est souvent déduite du premier post connu ; le nombre d'abonnés peut dater. Note toujours <em>la source et la date de consultation</em>, et compare au moins deux index quand tu peux.</p>
+  </div>
+  <div class="box rendu">
+    <p class="h">▸ À noter dans ta fiche</p>
+    <p>Abonnés (valeur + source + date), création estimée, catégorie annoncée, et la liste des « canaux similaires / liés » que l'index propose.</p>
+  </div>
+</section>
+
+<section id="preview">
+  <h2><span class="num">6</span> Le web preview à la main, puis automatisé</h2>
+  <p>Telegram sert une page publique en lecture seule pour tout canal public :</p>
+  <div class="cmd"><span class="lbl">navigateur</span><pre>https://t.me/s/<span class="cmt">&lt;GRAINE&gt;</span></pre></div>
+  <p>Ouvre-la. Tu y vois le titre, la description, les compteurs (abonnés, photos, vidéos, liens) et les derniers posts. Repère à l'œil : les mentions <em>« Forwarded from »</em> (reposts d'un autre canal) et les liens <code>t.me/…</code> cités. Ce sont tes <strong>canaux liés</strong>.</p>
+
+  <h3>6.1 — Automatiser avec <code>profileur.py</code></h3>
+  <p>Le script fait exactement ce que tu viens de faire à l'œil, mais proprement et de façon reproductible. Il n'utilise que la bibliothèque standard.</p>
+  <div class="cmd"><span class="lbl">terminal</span><pre><span class="prompt">$</span> python3 profileur.py <span class="cmt">&lt;GRAINE&gt;</span>
+<span class="prompt">$</span> python3 profileur.py <span class="cmt">&lt;GRAINE&gt;</span> --pages 3 \
+    --json ../data/<span class="cmt">&lt;GRAINE&gt;</span>.json --md ../data/<span class="cmt">&lt;GRAINE&gt;</span>.md</pre></div>
+  <p>Options utiles :</p>
+  <ul>
+    <li><code>--pages N</code> : remonte N pages d'historique (plus de posts = plus de canaux liés détectés).</li>
+    <li><code>--json</code> / <code>--md</code> : écrit le profil en JSON exploitable et en fiche Markdown lisible.</li>
+    <li><code>--proxy http://127.0.0.1:8118</code> : passe la requête par un proxy (Tor via privoxy, par ex.).</li>
+  </ul>
+
+  <h3>6.2 — Si tu n'as pas encore accès à t.me</h3>
+  <p>Valide au moins que ton installation fonctionne, hors ligne, sur une page enregistrée :</p>
+  <div class="cmd"><span class="lbl">terminal</span><pre><span class="prompt">$</span> python3 test_hors_ligne.py   <span class="cmt"># doit afficher « Tous les tests passent »</span></pre></div>
+
+  <div class="box warn">
+    <p class="h">⚠ Erreur <code>HTTP 403</code> ou page vide ?</p>
+    <p>Trois causes possibles : le canal est <strong>privé</strong> (pas de preview), il <strong>n'existe pas / plus</strong>, ou il a <strong>désactivé la preview publique</strong>. Ce n'est pas un bug du script : c'est une information sur la cible. Note-la.</p>
+  </div>
+</section>
+
+<section id="graphe">
+  <h2><span class="num">7</span> Cartographier les canaux liés</h2>
+  <p>Tu as maintenant trois listes de canaux liés : celle des dorks (§4), celle des index (§5), celle du profileur (§6). Fusionne-les.</p>
+  <ol>
+    <li>Rassemble tous les usernames candidats dans un tableau : <em>canal, comment il est apparu (repost / mention / index / dork), combien de fois</em>.</li>
+    <li>Classe-les par nombre d'occurrences. Les plus fréquents sont les <strong>voisins forts</strong> de ta graine.</li>
+    <li>Pour les 2 ou 3 voisins les plus forts, relance le profileur : <code>python3 profileur.py &lt;voisin&gt;</code>. Tu obtiens un mini-graphe à un saut.</li>
+  </ol>
+  <div class="box opsec">
+    <p class="h">◆ On s'arrête à un saut</p>
+    <p>Pour ce TP1, on ne profile que les voisins directs de la graine (profondeur 1). Remonter des voisins de voisins, c'est le TP suivant — et ça se planifie, sinon on explose le temps et on perd le fil.</p>
+  </div>
+</section>
+
+<section id="livrable">
+  <h2><span class="num">8</span> Livrable à rendre</h2>
+  <div class="box rendu">
+    <p class="h">▸ Une fiche de profil, en une page</p>
+    <p>Pour le canal-graine, rassemble :</p>
+    <ul>
+      <li><strong>Identité</strong> : titre affiché, @username, badge vérifié ou non.</li>
+      <li><strong>Taille</strong> : nombre d'abonnés (+ source + date de relevé).</li>
+      <li><strong>Ancienneté</strong> : date de création estimée (index) et date du plus ancien post visible (profileur). Précise la méthode.</li>
+      <li><strong>Thématique</strong> : catégorie annoncée + ta lecture de la description et des derniers posts.</li>
+      <li><strong>Canaux liés</strong> : le tableau fusionné (§7), classé par occurrences, avec pour chacun la nature du lien.</li>
+      <li><strong>Fichiers</strong> : joins le <code>.json</code> et le <code>.md</code> produits par le profileur.</li>
+    </ul>
+    <p>Format libre (Markdown, PDF ou HTML), mais <strong>chaque affirmation doit citer sa source et la date de consultation</strong>.</p>
+  </div>
+</section>
+
+<section id="bareme">
+  <h2><span class="num">9</span> Barème</h2>
+  <table>
+    <thead><tr><th>Critère</th><th>Attendu</th><th>Points</th></tr></thead>
+    <tbody>
+      <tr><td>Dorks</td><td>Au moins 3 requêtes différentes, 2 moteurs, résultats commentés</td><td class="pts">/4</td></tr>
+      <tr><td>Index tiers</td><td>2 index croisés, abonnés + création + catégorie, sources datées</td><td class="pts">/4</td></tr>
+      <tr><td>Web preview</td><td>Profileur lancé, JSON + MD produits, 403 correctement interprété si rencontré</td><td class="pts">/4</td></tr>
+      <tr><td>Canaux liés</td><td>Tableau fusionné classé, 2–3 voisins profilés à profondeur 1</td><td class="pts">/4</td></tr>
+      <tr><td>Rigueur & OPSEC</td><td>Sources datées partout, canal jamais rejoint, fiche claire</td><td class="pts">/4</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="plus">
+  <h2><span class="num">10</span> Pour aller plus loin</h2>
+  <ul>
+    <li>Compare le nombre d'abonnés donné par tgstat, telemetr et le compteur du web preview. Écart ? Pourquoi ?</li>
+    <li>Le profileur ne voit que les posts affichés dans la preview. Comment estimer un volume de publication réel ? (indice : les index tiers historisent.)</li>
+    <li>Un canal peut reposter beaucoup depuis une source sans jamais la nommer en clair. Où cette info apparaît-elle quand même ?</li>
+  </ul>
+</section>
+
+</div></main>
+
+<footer><div class="wrap">
+  <span>Résistez aux hackeurs — Formation OSINT</span>
+  <span>TP1 · v1 · usage pédagogique</span>
+</div></footer>
+
+<div id="lp" role="tooltip" aria-hidden="true">
+  <div class="lp-dom"><img alt="" id="lp-ico"><span id="lp-dom"></span></div>
+  <div class="lp-t" id="lp-t"></div>
+  <div class="lp-d" id="lp-d"></div>
+</div>
+
+<script>
+/* Link preview : carte au survol des liens externes.
+   Base locale (pas d'appel réseau, fonctionne hors ligne). Le favicon est
+   chargé depuis le domaine cible ; s'il ne charge pas, il est simplement masqué. */
+(function(){
+  var DB = {
+    "tgstat.com":  {t:"TGStat", d:"Index et statistiques de canaux Telegram : abonnés, historique, catégorie, canaux similaires."},
+    "tgstat.ru":   {t:"TGStat (RU)", d:"Variante russophone de TGStat, souvent plus fournie sur les canaux russes."},
+    "telemetr.io": {t:"Telemetr", d:"Statistiques d'audience et de croissance des canaux Telegram."},
+    "lyzem.com":   {t:"Lyzem", d:"Moteur de recherche plein-texte sur les canaux et messages publics."},
+    "t.me":        {t:"Telegram — web preview", d:"Page publique en lecture seule d'un canal : titre, abonnés, description, derniers posts."}
+  };
+  var lp = document.getElementById('lp'), ico = document.getElementById('lp-ico');
+  var dom = document.getElementById('lp-dom'), tt = document.getElementById('lp-t'), dd = document.getElementById('lp-d');
+  function host(u){ try{ return new URL(u).hostname.replace(/^www\./,''); }catch(e){ return null; } }
+  function show(a){
+    var h = host(a.href); if(!h) return;
+    var key = Object.keys(DB).find(function(k){ return h===k || h.endsWith('.'+k); });
+    var info = key ? DB[key] : {t:h, d:"Lien externe."};
+    dom.textContent = h;
+    tt.textContent = info.t; dd.textContent = info.d;
+    ico.src = "https://www.google.com/s2/favicons?domain="+h+"&sz=32";
+    ico.style.display = ''; ico.onerror = function(){ ico.style.display='none'; };
+    lp.classList.add('on'); lp.setAttribute('aria-hidden','false');
+  }
+  function place(e){
+    var pad=14, w=lp.offsetWidth, h=lp.offsetHeight;
+    var x=e.clientX+pad, y=e.clientY+pad;
+    if(x+w>innerWidth-8) x=e.clientX-w-pad;
+    if(y+h>innerHeight-8) y=e.clientY-h-pad;
+    lp.style.left=Math.max(8,x)+'px'; lp.style.top=Math.max(8,y)+'px';
+  }
+  function hide(){ lp.classList.remove('on'); lp.setAttribute('aria-hidden','true'); }
+  document.querySelectorAll('a[href^="http"]').forEach(function(a){
+    a.addEventListener('mouseenter', function(e){ show(a); place(e); });
+    a.addEventListener('mousemove', place);
+    a.addEventListener('mouseleave', hide);
+    a.addEventListener('focus', function(){ show(a);
+      var r=a.getBoundingClientRect(); lp.style.left=r.left+'px'; lp.style.top=(r.bottom+8)+'px'; });
+    a.addEventListener('blur', hide);
+  });
+})();
+</script>
+</body>
+</html>

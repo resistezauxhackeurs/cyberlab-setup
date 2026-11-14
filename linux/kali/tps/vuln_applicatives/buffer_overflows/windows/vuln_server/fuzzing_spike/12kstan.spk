@@ -1,0 +1,4 @@
+printf("STATS 12kstan.spk : "); //print to terminal command and filename
+s_readline(); //print received line from server
+s_string("KSTAN "); // send "STATS " to program
+s_string_variable("COMMAND"); //send fuzzed string

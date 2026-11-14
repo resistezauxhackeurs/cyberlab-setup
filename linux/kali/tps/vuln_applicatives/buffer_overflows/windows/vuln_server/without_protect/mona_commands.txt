@@ -1,0 +1,15 @@
+!mona pc 20000
+
+Cette commande va nous créer un motif dit « cyclique » (comme le ferait un pattern_create.rb de metasploit)
+
+
+
+!mona skeleton
+
+Génère un squelette de module metasploit en Ruby après vous avoir demandé le type d'exploit (fileformat, network client TCP ou network client UDP). Très utile pour ceux qui ne codent pas des exploits msf tous les jours.
+
+Mais il y a encore mieux. Après avoir provoqué un plantage avec un motif cyclique, tapez la commande suivante :
+
+!mona suggest
+
+Et là, comme par magie, une ébauche de module metasploit est écrite.

@@ -1,0 +1,21 @@
+Trouver les répertoires en directory listing sur les sous-domaines de chu-rennes.fr
+
+
+Trouver des répertoires git ou svn accessibles
+
+
+Trouver les adresses mail en gouv.fr sur pastebin.com
+
+
+Rechercher les cv d'ingénieurs en cybersécurité
+
+
+Recherche les présentations powerpoint (fichiers ppt et pptx) sur les sites de l'aphp 
+
+
+Trouver des interfaces wordpress exposées (filtrer les faux négatifs)
+
+Trouver des mots de passe de fichier de configuration Tomcat
+
+
+Configuration d’un équipement réseau VPN/Routeur exposé sur internet
