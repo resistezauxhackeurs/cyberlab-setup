@@ -15,5 +15,7 @@ fi
 log "Préparation de la base Kali"
 apt_install_list "$HERE/packages.apt"
 
+cp msf_vulnserver.rb /usr/share/metasploit-framework/modules/exploits/windows/misc/msf_vulnserver.rb
+
 log "Base Kali terminée. Ajoute ici les étapes spécifiques à tes TP."
 log "Le script de migration d'une Kali existante n'est volontairement pas lancé automatiquement."
